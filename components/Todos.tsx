@@ -16,7 +16,7 @@ const Todos = () => {
         const sub = client.models.Todo.observeQuery().subscribe({
             next: (data) => setTodos([...data.items]),
         });
-        return ()=>{sub.unsubscribe()};
+        return () => { sub.unsubscribe() };
     }, []);
 
     function testing() {
@@ -24,20 +24,27 @@ const Todos = () => {
         return Math.random().toString()
     }
 
-    function createTodo({}) {
+    function createTodo({ }) {
         client.models.Todo.create({
             content: window.prompt("Todo content"),
             id: testing()
         });
     }
 
+
+    function deleteTodo(id: string) {
+        client.models.Todo.delete({ id })
+    }
+
     return (
         <div>
-            <h1>File Explorer</h1>
+            <h1>To Do List</h1>
             <button onClick={createTodo}>+ new</button>
             <ul>
                 {todos.map((todo) => (
-                    <li key={todo.id}>{todo.content} createdAt: {todo.createdAt}</li>
+                    <li>
+                        {todo.content}                             <button onClick={()=>deleteTodo(todo.id)}>Delete</button>
+                    </li>
                 ))}
             </ul>
             <Link href="/"><button>Return to Home</button></Link>
