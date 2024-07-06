@@ -16,7 +16,11 @@ const schema = a.schema({
     .model({
       // id: a.id().required(),
       name: a.string().required(),
-      coverArtPath: a.string(),
+      size: a.float(),
+      type: a.string(),
+      lastModified: a.datetime(),
+      path: a.string(),
+      owner: a.string(),
     })
     .authorization((allow) => [allow.authenticated()]),
 });
@@ -33,7 +37,6 @@ export const data = defineData({
     },
   },
 });
-
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a
