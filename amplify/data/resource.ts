@@ -21,6 +21,7 @@ const schema = a.schema({
       lastModified: a.datetime(),
       path: a.string(),
       owner: a.string(),
+      url: a.string(),
     })
     .authorization((allow) => [allow.authenticated()]),
 });

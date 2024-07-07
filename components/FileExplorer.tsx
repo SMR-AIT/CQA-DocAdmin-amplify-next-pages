@@ -2,8 +2,10 @@ import { StorageManager } from "@aws-amplify/ui-react-storage";
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { Authenticator } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css";
 
 const client = generateClient<Schema>();
 
@@ -12,7 +14,7 @@ interface ProcessFileParams {
   file: File;
 }
 
-const FileExplorer = (path: string, userName: string) => {
+const FileExplorer = () => {
   const [objs, setObjs] = useState<Array<Schema["Doc"]["type"]>>([]);
   const [currentObjs, setCurrentObjs] = useState<Array<Schema["Doc"]["type"]>>(
     []
@@ -28,9 +30,11 @@ const FileExplorer = (path: string, userName: string) => {
   }, []);
 
   // update current path objs whenever the objs is changed
-  useEffect(() => {
-    setCurrentObjs(objs.filter((obj) => obj.path == path));
-  }, [objs]);
+  // useEffect(() => {
+  //   setCurrentObjs(objs.filter((obj) => obj.path == ""));
+  //   // console.log("path:", path);
+  //   console.log(currentObjs);
+  // }, [objs]);
 
   // function getCurrentLayerFiles() {
   //   console.log("hahaha gotcha");
@@ -43,8 +47,8 @@ const FileExplorer = (path: string, userName: string) => {
       name: file.name,
       lastModified: Math.floor(file.lastModified / 1000).toString(),
       size: file.size,
-      path: path,
-      owner: userName,
+      // path: path,
+      // owner: userName,
     });
   }
 
@@ -68,28 +72,33 @@ const FileExplorer = (path: string, userName: string) => {
   };
 
   return (
-    <div>
-      <h1>File Explorer</h1>
-      <ul>
-        {currentObjs.map((obj) => (
-          <li key={obj.id}>
-            {obj.name} <button onClick={() => deleteObj(obj.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-      <StorageManager
-        acceptedFileTypes={["Image/*"]}
-        path="Doc/"
-        maxFileCount={1}
-        autoUpload={false}
-        isResumable
-        onUploadSuccess={onUploadSuccess_0}
-        processFile={processFile}
-      />
-      <Link href="/">
-        <button>Return to Home</button>
-      </Link>
-    </div>
+    <Authenticator>
+      {({ signOut, user }) => (
+        <>
+          <div>
+            <h1>File Explorer</h1>
+            <ul>
+              {objs.map((obj) => (
+                <li key={obj.id}>{obj.name}</li>
+              ))}
+            </ul>
+            <StorageManager
+              acceptedFileTypes={["Image/*"]}
+              path="Doc/"
+              maxFileCount={1}
+              autoUpload={false}
+              isResumable
+              onUploadSuccess={onUploadSuccess_0}
+              processFile={processFile}
+            />
+            <Link href="/">
+              <button>Return to Home</button>
+            </Link>
+          </div>
+          <button onClick={signOut}>Sign out</button>
+        </>
+      )}
+    </Authenticator>
   );
 };
 
