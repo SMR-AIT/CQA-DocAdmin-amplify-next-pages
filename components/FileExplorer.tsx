@@ -1,5 +1,5 @@
 import { generateClient } from "aws-amplify/api";
-import { uploadData, getUrl, remove } from "aws-amplify/storage";
+import { uploadData, remove } from "aws-amplify/storage";
 import React, { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import "@aws-amplify/ui-react/styles.css";
@@ -10,9 +10,11 @@ import {
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
 import getValidFolderName from "./GetFolderName";
+import Link from 'next/link';
 
 
 Amplify.configure(outputs);
+const root = 'Doc/'
 
 // Generating the client
 const client = generateClient<Schema>({
@@ -26,7 +28,6 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   // const [currentDoc, setCurrentDoc] = useState<Doc | null>(null);
 
   const [path, setPath] = useState<string>("");
-  const [selectedIDs, setSelectedIDs] = useState<string[]>([]);
   const [allDocs, setAllDocs] = useState<Doc[]>([])
   const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
 
@@ -43,15 +44,17 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
   useEffect(() => {
     const fetchData = async () => {
-      // const { data: docs_all } = await client.models.Doc.list();
-      // console.log('docs_all', docs_all);
       try{
         const { data: docs } = await client.models.Doc.list({
           filter: { path: { eq: path } },
         });
         console.log('useEffect fetchData: ', docs)
         console.log('path: ', path)
-        setCurrentDocs(docs);
+        const folders = docs.filter(doc=>doc.name.endsWith('/')).sort()
+        console.log('folders:', folders)
+        const docs_rest = docs.filter(doc=>!doc.name.endsWith('/')).sort()
+        console.log('docs_rest:', docs_rest)
+        setCurrentDocs([...folders, ...docs_rest]);
       }catch(error){
         console.log('Error fetching docs:', error)
       }
@@ -85,7 +88,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
           // upload doc file to storage
           const response_upload = await uploadData({
-            path: `Doc/${path}${file.name}`,
+            path: `${root}${path}${file.name}`,
             data: file,
             options: {
               contentType: file.type, // contentType is optional
@@ -103,7 +106,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             size: file.size,
             type: file.type,
             path: path,
-            url: `https://${bucket}.s3.${region}.amazonaws.com/${path+file.name}`,
+            url: `https://${bucket}.s3.${region}.amazonaws.com/${root + path + file.name}`,
           });
           console.log("response (create doc data): ", response_create);
 
@@ -127,7 +130,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
       // remove doc file in storage
       const response_remove = await remove({
-        path: `Doc/${docPath}${docName}`,
+        path: `${root}${docPath}${docName}`,
       });
       console.log("response (remove s3 obj): ", response_remove);
 
@@ -151,7 +154,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       const folderName = getValidFolderName();
       if (folderName !== null) {
         const response_create = await client.models.Doc.create({
-          name: folderName,
+          name: folderName + '/',
           path: path,
           type: 'folder',
           url: '#'
@@ -200,7 +203,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
           // remove doc file in storage
           const response_remove = await remove({
-            path: `Doc/${file.path}${file.name}`,
+            path: `${root}${file.path}${file.name}`,
           });
           console.log("response (remove s3 obj): ", response_remove);
 
@@ -230,7 +233,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           Upload file(s):
           <input
             type="file"
-            accept="image/*"
+            accept=".pdf,.doc,.docx,.odt,image/*"
             onChange={createMultipleDocs}
             className="file-input"
             multiple
@@ -254,7 +257,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
               <a href={doc.url!} onClick={() => {
                 if (doc.type == 'folder') {
                   console.log('old path: ', path);
-                  setPath(doc.path! + doc.name + '/');
+                  setPath(doc.path! + doc.name);
                   console.log('new path: ', path);
                 }
               }}>{doc.name}{" "}</a>
@@ -263,6 +266,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           ))}
         </ul>
       </div>
+      <Link href="/"><button>Return to Home</button></Link>
 
     </main>
   );

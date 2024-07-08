@@ -1,5 +1,5 @@
 function getValidFolderName() {
-    const validFolderNameRegex = /^[a-zA-Z0-9_\- ]+$/;
+    const validFolderNameRegex = /^[a-zA-Z0-9_\-\u4e00-\u9fa5 ]+$/;
 
     while (true) {
         const folderName = window.prompt("Enter a valid folder name:");
