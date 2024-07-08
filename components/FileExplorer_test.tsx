@@ -1,7 +1,6 @@
-import "./App.css";
 import { generateClient } from "aws-amplify/api";
 import { uploadData, getUrl, remove } from "aws-amplify/storage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import "@aws-amplify/ui-react/styles.css";
 import {
@@ -10,6 +9,8 @@ import {
 } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
+import getValidFolderName from "./GetFolderName";
+
 
 Amplify.configure(outputs);
 
@@ -22,14 +23,36 @@ type Doc = Schema["Doc"]["type"];
 
 function App({ signOut, user }: WithAuthenticatorProps) {
   // State to hold the recognized text
-  const [currentDoc, setCurrentDoc] = useState<Doc | null>(null);
-  const [path, setPath] = useState<string>("");
-  const [selectedIDs, setSelectedIDs] = useState<string[]>([]);
+  // const [currentDoc, setCurrentDoc] = useState<Doc | null>(null);
 
-  // Used to display images for current Doc (folder):
-  const [currentDocs, setCurrentDocs] = useState<
-    (string | null | undefined)[] | null | undefined
-  >([]);
+  const [path, setPath] = useState<string>("/testing/");
+  const [selectedIDs, setSelectedIDs] = useState<string[]>([]);
+  const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
+
+  // update docs when the path is changed
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: docs_all } = await client.models.Doc.list();
+      console.log('docs_all', docs_all);
+      const { data: docs } = await client.models.Doc.list({
+        filter: { path: { eq: path } },
+      });
+      console.log('useEffect fetchData: ', docs)
+      console.log('path: ', path)
+      setCurrentDocs(docs);
+    };
+
+    fetchData();
+  }, [path])
+
+  // go up one layer
+  function goUpLayer() {
+    
+    if (!path.endsWith('/')) {console.log('Current path does not end with "/": ' + path);}
+    const newPath = path.split('/').slice(0, -2).join('/') + '/';
+    console.log('newPath: ', newPath);
+    setPath(newPath);
+  }
 
   async function createMultipleDocs(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
@@ -38,7 +61,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       // Create docs data and Upload all files to Storage:
       await Promise.all(
         Array.from(e.target.files).map(async (file) => {
-          
+
           // upload doc file to storage
           const response_upload = await uploadData({
             path: `Doc/${path}${file.name}`,
@@ -56,9 +79,9 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             owner: user?.username,
             size: file.size,
             type: file.type,
-            lastModified: Math.floor(file.lastModified / 1000).toString(),
+            // lastModified: file.lastModified.toString(),
             path: path,
-            url:(await getUrl({ path: 'Doc/${path}${file.name}' })).url.toString(),
+            url: (await getUrl({ path: 'Doc/${path}${file.name}' })).url.toString(),
           });
           console.log("response (create doc): ", response_create);
 
@@ -70,7 +93,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     }
   }
 
-  async function deleteDoc(id:string) {
+  async function deleteDoc(id: string) {
 
     try {
 
@@ -79,15 +102,9 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       const docPath = docDelete?.path!;
       const docName = docDelete?.name!;
       if (!docPath) {
-        console.log("Fail to delete folder, docPath not found.");
+        console.log("Failed to delete folder, docPath not found.");
         return;
       }
-
-      // delete the data
-      const response_delete = await client.models.Doc.delete({
-        id: id,
-      });
-      console.log("response (delete doc): ", response_delete);
 
       // remove doc file in storage
       const response_remove = await remove({
@@ -95,7 +112,12 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       });
       console.log("response (remove s3 obj): ", response_remove);
 
-      );
+      // delete the data
+      const response_delete = await client.models.Doc.delete({
+        id: id,
+      });
+      console.log("response (delete doc): ", response_delete);
+
     } catch (error) {
       console.error("Error delete Doc / file:", error);
     }
@@ -105,11 +127,16 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     try {
       // Create docs data and Upload all files to Storage:
       // Create the API record:
-      const response_create = await client.models.Doc.create({
-        name: window.prompt("Folder name")!,
-        path: path,
-      });
-      console.log("response (create folder): ", response_create);
+      const folderName = getValidFolderName();
+      if (folderName !== null) {
+        const response_create = await client.models.Doc.create({
+          name: folderName,
+          path: path,
+        });
+        console.log("response (create folder): ", response_create);
+      } else {
+        console.log("User canceled the input.");
+      }
       return;
     } catch (error) {
       console.error("Error create Doc / file:", error);
@@ -167,97 +194,39 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   return (
     <main className="app-container">
       <h1 className="greeting">Hello {user?.username}!</h1>
-      <h2 className="current-album">Current Doc: {currentDoc?.id}</h2>
+      <h2 className="current-folder">Current Doc: {'/' + path}</h2>
 
-      <div className="file-input-container">
+      <div className="file-upload-container">
         <label className="file-input-label">
-          Create Doc with one file:
-          <input
-            type="file"
-            accept="image/*"
-            onChange={createDocWithFirstDoc}
-            className="file-input"
-          />
-        </label>
-
-        <label className="file-input-label">
-          Create Doc with multiple files:
+          Upload file(s):
           <input
             type="file"
             accept="image/*"
             onChange={createMultipleDocs}
-            multiple
             className="file-input"
+            multiple
           />
         </label>
 
         <label className="file-input-label">
-          Add multiple images to current Doc:
-          <input
-            type="file"
-            accept="image/*"
-            onChange={addNewImagesToDoc}
-            disabled={!currentDoc}
-            multiple
+          <button
             className="file-input"
-          />
-        </label>
-
-        <label className="file-input-label">
-          Replace last image:
-          <input
-            type="file"
-            accept="image/*"
-            onChange={updateLastImage}
-            disabled={!currentDoc || !currentDocs}
-            className="file-input"
-          />
+            onClick={() => { goUpLayer }}
+          >Go to upper layer</button>
         </label>
       </div>
 
-      <div className="button-container">
-        <button
-          onClick={getImagesForDoc}
-          disabled={!currentDoc || !currentDocs}
-          className="app-button"
-        >
-          Get Images for Current Photo Album
-        </button>
-        <button
-          onClick={removeImagesFromDoc}
-          disabled={!currentDoc || !currentDocs}
-          className="app-button"
-        >
-          Remove images from current Doc (does not delete images)
-        </button>
-        <button
-          onClick={deleteImagesForCurrentDoc}
-          disabled={!currentDoc || !currentDocs}
-          className="app-button"
-        >
-          Remove images from current Doc, then delete images
-        </button>
-        <button
-          onClick={deleteCurrentDocAndImages}
-          disabled={!currentDoc}
-          className="app-button"
-        >
-          Delete current Doc (and images, if they exist)
-        </button>
-        <button onClick={signOut} className="app-button">
-          Sign out
-        </button>
+      <div className="folder-content-container">
+        <ul>
+          {currentDocs.map((doc) => (
+            <li key={doc.id}>
+              {doc.name}{" "}
+              <button onClick={() => deleteDoc(doc.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <div className="image-container">
-        {currentDocs &&
-          currentDocs.map((url, idx) => {
-            if (!url) return undefined;
-            return (
-              <img src={url} key={idx} alt="Storage file" className="image" />
-            );
-          })}
-      </div>
     </main>
   );
 }
