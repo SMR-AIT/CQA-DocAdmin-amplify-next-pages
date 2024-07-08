@@ -25,11 +25,21 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   // State to hold the recognized text
   // const [currentDoc, setCurrentDoc] = useState<Doc | null>(null);
 
-  const [path, setPath] = useState<string>("/testing/");
+  const [path, setPath] = useState<string>("");
   const [selectedIDs, setSelectedIDs] = useState<string[]>([]);
+  const [allDocs, setAllDocs] = useState<Doc[]>([])
   const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
 
   // update docs when the path is changed
+  useEffect(() => {
+    const sub = client.models.Doc.observeQuery().subscribe({
+      next: (data) => setAllDocs([...data.items]),
+    });
+    return () => {
+      sub.unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       const { data: docs_all } = await client.models.Doc.list();
@@ -43,13 +53,19 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     };
 
     fetchData();
-  }, [path])
+  }, [path, allDocs])
 
   // go up one layer
   function goUpLayer() {
-    
-    if (!path.endsWith('/')) {console.log('Current path does not end with "/": ' + path);}
-    const newPath = path.split('/').slice(0, -2).join('/') + '/';
+    if (path == '') {
+      console.log("Already at the root.")
+      return;
+    }
+    if (!path.endsWith('/')) {
+      throw new Error('Current path does not end with "/": ' + path);
+    }
+    let newPath = path.split('/').slice(0, -2).join('/') + '/';
+    if (newPath == '/') newPath = '';
     console.log('newPath: ', newPath);
     setPath(newPath);
   }
@@ -71,7 +87,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             },
           });
           const result = response_upload.result;
-          console.log(result);
+          console.log("response (upload doc s3): ", response_upload);
 
           // Create the API record:
           const response_create = await client.models.Doc.create({
@@ -81,9 +97,9 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             type: file.type,
             // lastModified: file.lastModified.toString(),
             path: path,
-            url: (await getUrl({ path: 'Doc/${path}${file.name}' })).url.toString(),
+            url: (await getUrl({ path: `Doc/${path}${file.name}` })).url.toString(),
           });
-          console.log("response (create doc): ", response_create);
+          console.log("response (create doc data): ", response_create);
 
           return;
         })
@@ -93,7 +109,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     }
   }
 
-  async function deleteDoc(id: string) {
+  async function deleteDocFile(id: string) {
 
     try {
 
@@ -101,10 +117,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       const { data: docDelete } = await client.models.Doc.get({ id });
       const docPath = docDelete?.path!;
       const docName = docDelete?.name!;
-      if (!docPath) {
-        console.log("Failed to delete folder, docPath not found.");
-        return;
-      }
+
 
       // remove doc file in storage
       const response_remove = await remove({
@@ -118,12 +131,14 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       });
       console.log("response (delete doc): ", response_delete);
 
+      setCurrentDocs(currentDocs.filter((doc) => doc.id != id))
+
     } catch (error) {
       console.error("Error delete Doc / file:", error);
     }
   }
 
-  async function createFolder(e: React.ChangeEvent<HTMLInputElement>) {
+  async function createFolder() {
     try {
       // Create docs data and Upload all files to Storage:
       // Create the API record:
@@ -132,6 +147,8 @@ function App({ signOut, user }: WithAuthenticatorProps) {
         const response_create = await client.models.Doc.create({
           name: folderName,
           path: path,
+          type: 'folder',
+          url: '#'
         });
         console.log("response (create folder): ", response_create);
       } else {
@@ -143,31 +160,30 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     }
   }
 
-  async function deleteFolder(id: string) {
+  async function deleteDocFolder(id: string) {
     try {
       // get the folder to delete
       const { data: folder } = await client.models.Doc.get({ id });
-      const folderPath = folder?.path!;
-      if (!folderPath) {
-        console.log("Fail to delete folder, folderPath not found.");
-        return;
-      }
+      const folderPath = folder?.path! + folder?.name;
 
       // get the docs in the folder
+      console.log('folderPath: ', folderPath)
       const { data: docs } = await client.models.Doc.list({
         filter: {
           path: {
-            beginsWith: folder!.path ? folder!.path : "",
+            beginsWith: folderPath
           },
         },
       });
-      if (docs.length == 0) {
-        console.log();
-        throw new Error(
-          "No doc data found to delete. Should at least have one doc data (the folder itself)."
-        );
-      }
+      console.log('docs to delete: ', docs)
 
+      // delete doc folder 
+      const response_delete_folder = await client.models.Doc.delete({
+        id: id,
+      });
+      console.log("response (delete doc folder): ", response_delete_folder);
+
+      // delete doc inside the folder
       await Promise.all(
         Array.from(docs).map(async (file) => {
           // delete all data in that folder
@@ -190,6 +206,13 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     }
   }
 
+  function deleteDoc(doc: Doc) {
+    if (doc.type == 'folder') {
+      deleteDocFolder(doc.id);
+    } else {
+      deleteDocFile(doc.id);
+    }
+  }
 
   return (
     <main className="app-container">
@@ -211,17 +234,25 @@ function App({ signOut, user }: WithAuthenticatorProps) {
         <label className="file-input-label">
           <button
             className="file-input"
-            onClick={() => { goUpLayer }}
+            onClick={() => { goUpLayer() }}
           >Go to upper layer</button>
+          <button className="create-folder" onClick={() => { createFolder() }}>Create folder</button>
         </label>
+
       </div>
 
       <div className="folder-content-container">
         <ul>
           {currentDocs.map((doc) => (
             <li key={doc.id}>
-              {doc.name}{" "}
-              <button onClick={() => deleteDoc(doc.id)}>Delete</button>
+              <a href={doc.url!} onClick={() => {
+                if (doc.type == 'folder') {
+                  console.log('old path: ', path);
+                  setPath(doc.path! + doc.name + '/');
+                  console.log('new path: ', path);
+                }
+              }}>{doc.name}{" "}</a>
+              <button onClick={() => deleteDoc(doc)}>Delete</button>
             </li>
           ))}
         </ul>

@@ -18,7 +18,6 @@ const schema = a.schema({
       name: a.string().required(),
       size: a.float(),
       type: a.string(),
-      lastModified: a.datetime(),
       path: a.string(),
       owner: a.string(),
       url: a.string(),
