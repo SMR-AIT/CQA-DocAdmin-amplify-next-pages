@@ -30,10 +30,11 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   const [allDocs, setAllDocs] = useState<Doc[]>([])
   const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
 
-  // update docs when the path is changed
+  // subscribe to the doc data
   useEffect(() => {
     const sub = client.models.Doc.observeQuery().subscribe({
       next: (data) => setAllDocs([...data.items]),
+      error: (err) => console.error('Error fetching documents:', err),
     });
     return () => {
       sub.unsubscribe();
@@ -42,14 +43,18 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: docs_all } = await client.models.Doc.list();
-      console.log('docs_all', docs_all);
-      const { data: docs } = await client.models.Doc.list({
-        filter: { path: { eq: path } },
-      });
-      console.log('useEffect fetchData: ', docs)
-      console.log('path: ', path)
-      setCurrentDocs(docs);
+      // const { data: docs_all } = await client.models.Doc.list();
+      // console.log('docs_all', docs_all);
+      try{
+        const { data: docs } = await client.models.Doc.list({
+          filter: { path: { eq: path } },
+        });
+        console.log('useEffect fetchData: ', docs)
+        console.log('path: ', path)
+        setCurrentDocs(docs);
+      }catch(error){
+        console.log('Error fetching docs:', error)
+      }
     };
 
     fetchData();
@@ -90,14 +95,15 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           console.log("response (upload doc s3): ", response_upload);
 
           // Create the API record:
+          const bucket = Amplify.getConfig().Storage?.S3.bucket
+          const region = Amplify.getConfig().Storage?.S3.region
           const response_create = await client.models.Doc.create({
             name: file.name,
             owner: user?.username,
             size: file.size,
             type: file.type,
-            // lastModified: file.lastModified.toString(),
             path: path,
-            url: (await getUrl({ path: `Doc/${path}${file.name}` })).url.toString(),
+            url: `https://${bucket}.s3.${region}.amazonaws.com/${path+file.name}`,
           });
           console.log("response (create doc data): ", response_create);
 
