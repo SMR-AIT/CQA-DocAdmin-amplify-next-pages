@@ -8,15 +8,52 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import type { Schema } from "../amplify/data/resource";
+import getIcon from "./GetIcon";
+import Button from '@mui/material/Button';
+import * as fileOps from "./FileOps";
+import ButtonGroup from '@mui/material/ButtonGroup';
 
 type Doc = Schema["Doc"]["type"];
 
+
+const getUrl = (doc: Doc, setPath: (newPath: string) => void) => {
+  return (
+
+    <a
+      href={doc.url!}
+      target={doc.type === "folder" ? undefined : "_blank"}
+      onClick={() => {
+        if (doc.type == "folder") {
+          // console.log("old path: ", path);
+          setPath(doc.path! + doc.name);
+          // console.log("new path: ", path);
+        }
+      }}
+    >
+      {getIcon(doc.type?.toString()!)} {doc.name}{" "}
+    </a>
+  )
+}
+
+// const getButton = () => {
+//   return (
+//     <Button
+//       size="small"
+//       variantion="primary"
+//       colorTheme="error"
+//       onClick={() => deleteDoc(doc)}
+//     >
+//       Delete
+//     </Button>
+//   )
+// }
+
 interface Column {
-  id: "name" | "size" | "delete";
+  id: "name" | "size" | "delete" | "link";
   label: string;
   minWidth?: number;
-  align?: "right";
-  format?: (value: number) => string;
+  align?: "right" | "justify" | "center" | "left" | "inherit" | undefined;
+  format?: (value: any) => string;
 }
 
 const columns: readonly Column[] = [
@@ -24,15 +61,15 @@ const columns: readonly Column[] = [
   {
     id: "size",
     label: "Size",
-    minWidth: 170,
+    minWidth: 100,
     align: "right",
-    format: (value: number) => value.toLocaleString("en-US"),
+    format: (value: number) => Math.floor(value/1000).toLocaleString("en-US") + ' KB',
   },
   {
     id: "delete",
-    label: "Population",
-    minWidth: 170,
-    align: "right",
+    label: "",
+    minWidth: 100,
+    align: "justify",
     format: (value: number) => value.toLocaleString("en-US"),
   },
 ];
@@ -41,36 +78,22 @@ interface Data {
   name: string;
   id: string;
   size: number | null;
-  delete: "delete";
+  action: "delete";
+  link: string;
+  doc: Doc;
 }
 
 function createData(doc: Doc): Data {
   const _size = doc.size ? doc.size : null;
-  return { name: doc.name, id: doc.id, size: _size, delete: "delete" };
+  return { name: doc.name, id: doc.id, size: _size, action: "delete", doc: doc, link: doc.url! };
 }
 
-// const rows = [
-//   createData("India", "IN", 1324171354, 3287263),
-//   createData("China", "CN", 1403500365, 9596961),
-//   createData("Italy", "IT", 60483973, 301340),
-//   createData("United States", "US", 327167434, 9833520),
-//   createData("Canada", "CA", 37602103, 9984670),
-//   createData("Australia", "AU", 25475400, 7692024),
-//   createData("Germany", "DE", 83019200, 357578),
-//   createData("Ireland", "IE", 4857000, 70273),
-//   createData("Mexico", "MX", 126577691, 1972550),
-//   createData("Japan", "JP", 126317000, 377973),
-//   createData("France", "FR", 67022000, 640679),
-//   createData("United Kingdom", "GB", 67545757, 242495),
-//   createData("Russia", "RU", 146793744, 17098246),
-//   createData("Nigeria", "NG", 200962417, 923768),
-//   createData("Brazil", "BR", 210147125, 8515767),
-// ];
 interface StickyHeadTableProps {
   Docs: Doc[];
+  setNewPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs }) => {
+const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPath: setPath }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -113,14 +136,48 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs }) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === "number"
-                            ? column.format(value)
-                            : value}
-                        </TableCell>
-                      );
+                      if (column.id === 'delete') {
+                        return (
+                          <TableCell>
+                            <ButtonGroup variant="contained" aria-label="Basic button group" size="small">
+                              <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => fileOps.deleteDoc(row.doc)}
+                              >
+                                刪除
+                              </Button>
+                              <Button
+                                variant="contained"
+                                href={row.doc.url!}
+                                target={row.doc.type === "folder" ? undefined : "_blank"}
+                                onClick={() => {
+                                  if (row.doc.type == "folder") {
+                                    setPath(row.doc.path! + row.doc.name);
+                                  }
+                                }}
+                              >
+                                連結
+                              </Button>
+                            </ButtonGroup>
+                          </TableCell>
+                        )
+                      } else if (column.id === 'name') {
+                        return (
+                          <TableCell>
+                            {getIcon(row.doc.type?.toString()!)} {row.doc.name}{" "}
+                          </TableCell>
+                        )
+                      } else {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.format && typeof value === "number"
+                              ? column.format(value)
+                              : value}
+                          </TableCell>
+                        );
+                      }
                     })}
                   </TableRow>
                 );
