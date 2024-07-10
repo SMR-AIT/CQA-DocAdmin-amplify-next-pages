@@ -7,10 +7,13 @@ import {
 } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
-import { Button } from "@aws-amplify/ui-react";
+// import { Button } from "@aws-amplify/ui-react";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import "@aws-amplify/ui-react/styles.css";
 import StickyHeadTable from "./FileTable";
 import * as fileOps from "./FileOps";
+import { AlignHorizontalRight } from "@mui/icons-material";
 
 Amplify.configure(outputs);
 const root = "Doc/";
@@ -21,7 +24,6 @@ const client = generateClient<Schema>({
 });
 
 type Doc = Schema["Doc"]["type"];
-
 
 function App({ signOut, user }: WithAuthenticatorProps) {
   // State to hold the recognized text
@@ -63,48 +65,74 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     fetchData();
   }, [path, allDocs]);
 
-
   return (
     <main className="app-container">
       {/* <h1 className="greeting">Hello {user?.username}!</h1> */}
       <h2 className="current-folder">Current Doc: {"/" + path}</h2>
 
       <div className="file-upload-container">
-        <label className="file-input-label">
-          選取要上傳到此位置的檔案:
-          <input
+        {/* 選取要上傳到此位置的檔案: */}
+        {/* <input
             type="file"
             accept=".pdf,.doc,.docx,.odt,image/*"
-            onChange={(e)=>fileOps.createMultipleDocs(path, e.target.files!, user?.username!)}
+            onChange={(e) =>
+              fileOps.createMultipleDocs(path, e.target.files!, user?.username!)
+            }
             className="file-input"
             multiple
-          />
-        </label>
+          /> */}
+        <ButtonGroup
+          variant="contained"
+          aria-label="Basic button group"
+          size="small"
+        >
+          <Button
+            variant="contained"
+            component="label"
+            color="success"
+            sx={{ AlignHorizontalRight: "false" }}
+          >
+            上傳檔案
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.odt,image/*"
+              onChange={(e) =>
+                fileOps.createMultipleDocs(
+                  path,
+                  e.target.files!,
+                  user?.username!
+                )
+              }
+              style={{ display: "none" }}
+              multiple
+            />
+          </Button>
 
-        <label className="file-input-label">
           <Button
             className="file-input"
             onClick={() => {
-                fileOps.goUpLayer(path, setPath);
+              fileOps.goUpLayer(path, setPath);
             }}
-            marginRight={5}
+            size="small"
+            color="secondary"
+          >
+            回上一層
+          </Button>
+          <Button
+            className="create-folder"
+            onClick={() => {
+              fileOps.createFolder(path);
+            }}
             size="small"
           >
-            Go to upper layer
+            建新資料夾
           </Button>
-        </label>
-        <Button
-          className="create-folder"
-          onClick={() => {
-            fileOps.createFolder(path);
-          }}
-          size="small"
-        >
-          Create folder
-        </Button>
+        </ButtonGroup>
       </div>
-      <StickyHeadTable Docs={currentDocs} setNewPath={setPath}></StickyHeadTable>
-      
+      <StickyHeadTable
+        Docs={currentDocs}
+        setNewPath={setPath}
+      ></StickyHeadTable>
     </main>
   );
 }

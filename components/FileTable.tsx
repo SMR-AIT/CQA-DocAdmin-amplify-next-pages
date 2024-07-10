@@ -9,16 +9,14 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import type { Schema } from "../amplify/data/resource";
 import getIcon from "./GetIcon";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 import * as fileOps from "./FileOps";
-import ButtonGroup from '@mui/material/ButtonGroup';
+import ButtonGroup from "@mui/material/ButtonGroup";
 
 type Doc = Schema["Doc"]["type"];
 
-
 const getUrl = (doc: Doc, setPath: (newPath: string) => void) => {
   return (
-
     <a
       href={doc.url!}
       target={doc.type === "folder" ? undefined : "_blank"}
@@ -32,8 +30,8 @@ const getUrl = (doc: Doc, setPath: (newPath: string) => void) => {
     >
       {getIcon(doc.type?.toString()!)} {doc.name}{" "}
     </a>
-  )
-}
+  );
+};
 
 // const getButton = () => {
 //   return (
@@ -49,7 +47,7 @@ const getUrl = (doc: Doc, setPath: (newPath: string) => void) => {
 // }
 
 interface Column {
-  id: "name" | "size" | "delete" | "link";
+  id: "name" | "size" | "button" | "link";
   label: string;
   minWidth?: number;
   align?: "right" | "justify" | "center" | "left" | "inherit" | undefined;
@@ -63,10 +61,11 @@ const columns: readonly Column[] = [
     label: "Size",
     minWidth: 100,
     align: "right",
-    format: (value: number) => Math.floor(value/1000).toLocaleString("en-US") + ' KB',
+    format: (value: number) =>
+      Math.floor(value / 1000).toLocaleString("en-US") + " KB",
   },
   {
-    id: "delete",
+    id: "button",
     label: "",
     minWidth: 100,
     align: "justify",
@@ -85,7 +84,14 @@ interface Data {
 
 function createData(doc: Doc): Data {
   const _size = doc.size ? doc.size : null;
-  return { name: doc.name, id: doc.id, size: _size, action: "delete", doc: doc, link: doc.url! };
+  return {
+    name: doc.name,
+    id: doc.id,
+    size: _size,
+    action: "delete",
+    doc: doc,
+    link: doc.url!,
+  };
 }
 
 interface StickyHeadTableProps {
@@ -93,7 +99,10 @@ interface StickyHeadTableProps {
   setNewPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPath: setPath }) => {
+const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
+  Docs: docs,
+  setNewPath: setPath,
+}) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -114,7 +123,8 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPat
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+      {/* <TableContainer sx={{ maxHeight: 440 }}> */}
+      <TableContainer component={Paper} sx={{ flexGrow: 1 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -136,10 +146,14 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPat
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
-                      if (column.id === 'delete') {
+                      if (column.id === "button") {
                         return (
-                          <TableCell>
-                            <ButtonGroup variant="contained" aria-label="Basic button group" size="small">
+                          <TableCell key={column.id} align={column.align}>
+                            <ButtonGroup
+                              variant="contained"
+                              aria-label="Basic button group"
+                              size="small"
+                            >
                               <Button
                                 variant="contained"
                                 color="error"
@@ -150,7 +164,11 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPat
                               <Button
                                 variant="contained"
                                 href={row.doc.url!}
-                                target={row.doc.type === "folder" ? undefined : "_blank"}
+                                target={
+                                  row.doc.type === "folder"
+                                    ? undefined
+                                    : "_blank"
+                                }
                                 onClick={() => {
                                   if (row.doc.type == "folder") {
                                     setPath(row.doc.path! + row.doc.name);
@@ -161,13 +179,13 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({ Docs: docs, setNewPat
                               </Button>
                             </ButtonGroup>
                           </TableCell>
-                        )
-                      } else if (column.id === 'name') {
+                        );
+                      } else if (column.id === "name") {
                         return (
-                          <TableCell>
+                          <TableCell key={column.id} align={column.align}>
                             {getIcon(row.doc.type?.toString()!)} {row.doc.name}{" "}
                           </TableCell>
-                        )
+                        );
                       } else {
                         const value = row[column.id];
                         return (
