@@ -9,13 +9,8 @@ Amplify.configure(outputs);
 
 export default function Home() {
   return (
-    <Authenticator>
-      {({ signOut }) => (
-        <main>
-          <FileExplorer />
-          <button onClick={signOut}>Sign out</button>
-        </main>
-      )}
-    </Authenticator>
+    <main>
+      <FileExplorer />
+    </main>
   );
 }
