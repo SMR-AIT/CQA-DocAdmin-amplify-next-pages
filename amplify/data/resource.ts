@@ -28,7 +28,7 @@ const schema = a.schema({
   buildVDB: a
     .query()
     .arguments({
-      name: a.string().default("buildVDB"),
+      name: a.string(),
     })
     .returns(a.string())
     .handler(a.handler.function(buildVDB))
