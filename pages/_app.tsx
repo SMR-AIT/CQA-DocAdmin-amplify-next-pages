@@ -4,7 +4,7 @@ import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import ResponsiveAppBar from "@/components/AppBar";
-import { Box, Paper } from "@mui/material";
+import { Box } from "@mui/material";
 
 Amplify.configure(outputs);
 
