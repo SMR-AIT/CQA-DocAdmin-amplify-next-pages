@@ -22,7 +22,7 @@ const root = "Doc/";
 const client = generateClient<Schema>({
     authMode: "apiKey",
 });
-
+// client.queries.buildVDB({name:''})
 type Doc = Schema["Doc"]["type"];
 
 function App({ signOut, user }: WithAuthenticatorProps) {
