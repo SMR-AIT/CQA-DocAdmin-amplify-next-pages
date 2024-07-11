@@ -31,8 +31,8 @@ const schema = a.schema({
       name: a.string(),
     })
     .returns(a.string())
-    .handler(a.handler.function(buildVDB))
     .authorization((allow)=>[allow.publicApiKey()])
+    .handler(a.handler.function(buildVDB))
 });
 
 export type Schema = ClientSchema<typeof schema>;

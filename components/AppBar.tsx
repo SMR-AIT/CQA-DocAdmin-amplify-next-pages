@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import Link from "next/link";
+
 
 interface page {
     name: string;
@@ -27,12 +27,7 @@ const pages = [
     createData('Forum', "/forum"),
     createData('ToDo List', "/todos")
 ];
-// const pages = [
-//     'File Explorer',
-//     'Change Logs',
-//     'Forum',
-//     'ToDo List'
-// ];
+
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -58,7 +53,7 @@ function ResponsiveAppBar() {
     return (
         <AppBar position="fixed">
             <Container maxWidth="xl">
-                <Toolbar disableGutters>
+                <Toolbar disableGutters sx={{ justifyContent: 'space-evenly', width: '100%' }}>
                     <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                     <Typography
                         variant="h6"
@@ -108,7 +103,7 @@ function ResponsiveAppBar() {
                             }}
                         >
                             {pages.map((page) => (
-                                <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                                <MenuItem key={page.name} onClick={handleCloseNavMenu} sx={{ color: 'white' }}>
                                     <Typography textAlign="center" component="a" href={page.href}>
                                         {page.name}
                                     </Typography>
@@ -156,7 +151,7 @@ function ResponsiveAppBar() {
                             </IconButton>
                         </Tooltip>
                         <Menu
-                            sx={{ mt: '45px' }}
+                            sx={{ mt: '45px', color: 'primary'}}
                             id="menu-appbar"
                             anchorEl={anchorElUser}
                             anchorOrigin={{
@@ -172,7 +167,7 @@ function ResponsiveAppBar() {
                             onClose={handleCloseUserMenu}
                         >
                             {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                                <MenuItem key={setting} onClick={handleCloseUserMenu}  sx={{background:'blue'}}>
                                     <Typography textAlign="center">{setting}</Typography>
                                 </MenuItem>
                             ))}

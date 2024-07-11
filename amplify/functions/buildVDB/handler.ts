@@ -1,6 +1,5 @@
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import type { Schema } from "../../data/resource";
-import type { Handler } from 'aws-lambda';
 
 // Create an instance of the Lambda client
 const lambdaClient = new LambdaClient({ region: "ap-northeast-1" });

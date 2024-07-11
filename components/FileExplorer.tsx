@@ -7,13 +7,13 @@ import {
 } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
-// import { Button } from "@aws-amplify/ui-react";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import "@aws-amplify/ui-react/styles.css";
 import StickyHeadTable from "./FileTable";
 import * as fileOps from "./FileOps";
 import { Box, Typography } from "@mui/material";
+import { triggerBuildVdb } from "./BuildVDB";
 
 Amplify.configure(outputs);
 const root = "Doc/";
@@ -79,7 +79,6 @@ function App({ signOut, user }: WithAuthenticatorProps) {
                 marginTop: '12vh', marginBottom: '0.75vh'
             }}>
                 <Typography variant='h5' >資料夾: ./{path}</Typography>
-                {/* <Box className="file-upload-container" sx={{display:'flex'}}> */}
                 <ButtonGroup
                     variant="contained"
                     aria-label="Basic button group"
@@ -108,25 +107,27 @@ function App({ signOut, user }: WithAuthenticatorProps) {
                             multiple
                         />
                     </Button>
-
-                    <Button
-                        className="file-input"
-                        onClick={() => {
-                            fileOps.goUpLayer(path, setPath);
-                        }}
-                        size="small"
-                        color="secondary"
-                    >
-                        回上一層
-                    </Button>
                     <Button
                         className="create-folder"
                         onClick={() => {
                             fileOps.createFolder(path, hasID);
                         }}
-                        size="small"
+                        color="success"
                     >
                         建新資料夾
+                    </Button>
+                    <Button
+                        className="file-input"
+                        onClick={() => {
+                            fileOps.goUpLayer(path, setPath);
+                        }}
+                        color="primary"
+                    >
+                        回上一層
+                    </Button>
+
+                    <Button onClick={() => triggerBuildVdb()} color="warning">
+                        更新部署
                     </Button>
                 </ButtonGroup>
             </Box>
