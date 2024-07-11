@@ -18,8 +18,9 @@ const client = generateClient<Schema>({
 type Doc = Schema["Doc"]["type"];
 
 
+
 // go up one layer
-export function goUpLayer(path:string, setNewPath:React.Dispatch<React.SetStateAction<string>>) {
+export function goUpLayer(path: string, setNewPath: React.Dispatch<React.SetStateAction<string>>) {
     if (path == "") {
         console.log("Already at the root.");
         return;
@@ -34,13 +35,24 @@ export function goUpLayer(path:string, setNewPath:React.Dispatch<React.SetStateA
 }
 
 
-export async function createMultipleDocs(path:string, files:FileList, userName:string){
+export async function createMultipleDocs(path: string, files: FileList, userName: string, hasID: (id: string) => boolean) {
     if (!files) return;
 
     try {
+        const skippedFiles:string[] = []
+
         // Create docs data and Upload all files to Storage:
         await Promise.all(
             Array.from(files).map(async (file) => {
+                
+                // check if the file already exist
+                const id = path + file.name;
+                if (hasID(id)) {
+                    skippedFiles.push('   \t' + file.name)
+                    console.log('Skip file: ', file.name)
+                    return;
+                }
+
                 // upload doc file to storage
                 const response_upload = await uploadData({
                     path: `${root}${path}${file.name}`,
@@ -48,14 +60,16 @@ export async function createMultipleDocs(path:string, files:FileList, userName:s
                     options: {
                         contentType: file.type, // contentType is optional
                     },
+
                 });
-                const result = response_upload.result;
+                console.log("response (upload doc s3): ", response_upload.result);
                 console.log("response (upload doc s3): ", response_upload);
 
                 // Create the API record:
                 const bucket = Amplify.getConfig().Storage?.S3.bucket;
                 const region = Amplify.getConfig().Storage?.S3.region;
                 const response_create = await client.models.Doc.create({
+                    id: id,
                     name: file.name,
                     owner: userName,
                     size: file.size,
@@ -69,6 +83,10 @@ export async function createMultipleDocs(path:string, files:FileList, userName:s
                 return;
             })
         );
+
+        if (skippedFiles.length!=0){
+            alert("已有相同名稱的檔案存在於此路徑，請刪除後再上傳:\n" + skippedFiles.join(',\n'));
+        }
     } catch (error) {
         console.error("Error create Doc / file:", error);
     }
@@ -99,13 +117,24 @@ export async function deleteDocFile(id: string) {
     }
 }
 
-export async function createFolder(path:string) {
+export async function createFolder(path: string, hasID: (id: string) => boolean) {
+    let folderName = 'New Folder';
+    while (true) {
+        folderName = getValidFolderName()!;
+        const id = path + folderName + '/';
+        if (!hasID(id)) break;
+        else alert("已存在同樣名稱的資料夾在此路徑，請重新命名。")
+    }
     try {
         // Create docs data and Upload all files to Storage:
         // Create the API record:
-        const folderName = getValidFolderName();
+        const { data: todo, errors } = await client.models.Doc.get({
+            id: path + folderName + "/",
+        });
+
         if (folderName !== null) {
             const response_create = await client.models.Doc.create({
+                id: path + folderName + "/",
                 name: folderName + "/",
                 path: path,
                 type: "folder",

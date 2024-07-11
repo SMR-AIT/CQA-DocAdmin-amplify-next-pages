@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { buildVDB } from "../functions/buildVDB/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -12,6 +13,7 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+
   Doc: a
     .model({
       name: a.string().required(),
@@ -22,6 +24,14 @@ const schema = a.schema({
       url: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+    
+  buildVDB: a
+    .query()
+    .arguments({
+      name: a.string().default("buildVDB"),
+    })
+    .returns(a.string())
+    .handler(a.handler.function(buildVDB)),
 });
 
 export type Schema = ClientSchema<typeof schema>;

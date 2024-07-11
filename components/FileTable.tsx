@@ -15,37 +15,6 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 
 type Doc = Schema["Doc"]["type"];
 
-const getUrl = (doc: Doc, setPath: (newPath: string) => void) => {
-  return (
-    <a
-      href={doc.url!}
-      target={doc.type === "folder" ? undefined : "_blank"}
-      onClick={() => {
-        if (doc.type == "folder") {
-          // console.log("old path: ", path);
-          setPath(doc.path! + doc.name);
-          // console.log("new path: ", path);
-        }
-      }}
-    >
-      {getIcon(doc.type?.toString()!)} {doc.name}{" "}
-    </a>
-  );
-};
-
-// const getButton = () => {
-//   return (
-//     <Button
-//       size="small"
-//       variantion="primary"
-//       colorTheme="error"
-//       onClick={() => deleteDoc(doc)}
-//     >
-//       Delete
-//     </Button>
-//   )
-// }
-
 interface Column {
   id: "name" | "size" | "button" | "link";
   label: string;
@@ -122,9 +91,9 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
   });
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <Paper sx={{ width: "90vw", height: "75vh", overflow: "hidden" }}>
       {/* <TableContainer sx={{ maxHeight: 440 }}> */}
-      <TableContainer component={Paper} sx={{ flexGrow: 1 }}>
+      <TableContainer component={Paper} sx={{ flexGrow: 1, height: "80vh" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>

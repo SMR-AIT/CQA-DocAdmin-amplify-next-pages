@@ -13,7 +13,7 @@ function getValidFolderName() {
     } else {
       // Folder name is invalid, show an alert and prompt again
       alert(
-        "Invalid folder name. Please use only letters, numbers, spaces, hyphens, and underscores."
+        "無效的資料夾名稱，請使用英文字母、數字、空格、減號、底線。"
       );
     }
   }
