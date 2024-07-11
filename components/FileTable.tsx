@@ -93,7 +93,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
   return (
     <Paper sx={{ width: "90vw", height: "75vh", overflow: "hidden" }}>
       {/* <TableContainer sx={{ maxHeight: 440 }}> */}
-      <TableContainer component={Paper} sx={{ flexGrow: 1, height: "80vh" }}>
+      <TableContainer component={Paper} sx={{ flexGrow: 1, height: "75vh" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
