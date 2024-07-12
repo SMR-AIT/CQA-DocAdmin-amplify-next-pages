@@ -13,7 +13,7 @@ export const auth = defineAuth({
   userAttributes: {
     preferredUsername: {
       mutable: true,
-      required: true,
+      required: false,
     },
   },
   triggers: {
