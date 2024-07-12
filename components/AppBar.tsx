@@ -73,7 +73,7 @@ function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
   };
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={{ height: "10vh", overflow: "hidden" }}>
       <Container maxWidth="xl">
         <Toolbar
           disableGutters
