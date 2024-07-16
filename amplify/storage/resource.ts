@@ -6,5 +6,14 @@ export const storage = defineStorage({
     'Doc/*': [
       allow.authenticated.to(['read','write', "delete"]),
     ],
-  })
+  }),
+    
+  triggers: {
+    onUpload: defineFunction({
+      entry: './on-upload-handler.ts'
+    }),
+    onDelete: defineFunction({
+      entry: './on-delete-handler.ts'
+    })
+  }
 });
