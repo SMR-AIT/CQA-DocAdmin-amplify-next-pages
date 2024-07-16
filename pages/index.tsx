@@ -3,7 +3,7 @@ import outputs from "../amplify_outputs.json";
 
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import FileExplorer from "@/components/FileExplorer";
+import FileExplorer from "@/components/FileExplorer/index";
 
 Amplify.configure(outputs);
 

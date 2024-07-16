@@ -7,10 +7,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import type { Schema } from "../amplify/data/resource";
-import getIcon from "./GetIcon";
+import type { Schema } from "@/amplify/data/resource";
+import getIcon from "@/lib/GetIcon";
 import Button from "@mui/material/Button";
-import * as fileOps from "./FileOps";
+import * as fileOps from "@/lib/FileOps";
 import ButtonGroup from "@mui/material/ButtonGroup";
 
 type Doc = Schema["Doc"]["type"];
