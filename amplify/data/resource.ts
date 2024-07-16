@@ -23,6 +23,10 @@ const schema = a.schema({
       path: a.string(),
       owner: a.string(),
       url: a.string(),
+      statusText: a.boolean().default(false),
+      statusSummary: a.boolean().default(false),
+      statusEmbed: a.boolean().default(false),
+      statusVdb: a.boolean().default(false),
     })
     .authorization((allow) => [allow.publicApiKey()]),
     
