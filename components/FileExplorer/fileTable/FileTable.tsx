@@ -25,6 +25,10 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "name", label: "Name", minWidth: 170 },
+  { id: "statusText", label: "Text", minWidth: 100 },
+  { id: "statusSummary", label: "Summary", minWidth: 100 },
+  { id: "statusEmbed", label: "Embed", minWidth: 100 },
+  { id: "statusVdb", label: "VDB", minWidth: 100 },
   {
     id: "size",
     label: "Size",
@@ -40,13 +44,8 @@ const columns: readonly Column[] = [
     align: "justify",
     format: (value: number) => value.toLocaleString("en-US"),
   },
-  {
-    id: "statusEmbed",
-    label: "",
-    minWidth: 100,
-    align: "justify",
-    format: (value: number) => value.toLocaleString("en-US"),
-  },
+
+
 ];
 
 interface Data {
@@ -56,6 +55,10 @@ interface Data {
   action: "delete";
   link: string;
   doc: Doc;
+  statusText: string; //'Done'|'Pending'|'Undone';
+  statusSummary: string; //'Done'|'Pending'|'Undone';
+  statusEmbed: string; //'Done'|'Pending'|'Undone';
+  statusVdb: string; //'Done'|'Pending'|'Undone';
 }
 
 function createData(doc: Doc): Data {
@@ -67,6 +70,10 @@ function createData(doc: Doc): Data {
     action: "delete",
     doc: doc,
     link: doc.url!,
+    statusText: doc.statusText??"Undone",
+    statusSummary: doc.statusSummary??"Undone",
+    statusEmbed: doc.statusEmbed??"Undone",
+    statusVdb: doc.statusVdb??"Undone",
   };
 }
 
@@ -99,7 +106,6 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
 
   return (
     <Paper sx={{ width: "90vw", height: "75vh", overflow: "hidden" }}>
-      {/* <TableContainer sx={{ maxHeight: 440 }}> */}
       <TableContainer component={Paper} sx={{ flexGrow: 1, height: "75vh" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
