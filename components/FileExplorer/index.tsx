@@ -14,9 +14,10 @@ import StickyHeadTable from "./fileTable/FileTable";
 import * as fileOps from "@/lib/FileOps";
 import { Box, Typography } from "@mui/material";
 import { triggerBuildVdb } from "@/lib/BuildVDB";
+import { updateDocStatus } from "@/lib/UpdateDocData";
 
 Amplify.configure(outputs);
-const root = "Doc/";
+// const root = "Doc/";
 
 // Generating the client
 const client = generateClient<Schema>({
@@ -128,6 +129,9 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
                     <Button onClick={() => triggerBuildVdb()} color="warning">
                         更新部署
+                    </Button>
+                    <Button onClick={() => updateDocStatus()} color="warning">
+                        重新整理
                     </Button>
                 </ButtonGroup>
             </Box>

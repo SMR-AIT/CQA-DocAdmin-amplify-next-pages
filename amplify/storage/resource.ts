@@ -7,6 +7,15 @@ export const storage = defineStorage({
     'Doc/*': [
       allow.authenticated.to(['read','write', "delete"]),
     ],
+    'txt/*': [
+      allow.authenticated.to(['read']),
+    ],
+    'Index/*': [
+      allow.authenticated.to(['read']),
+    ],
+    'pdf/*': [
+      allow.authenticated.to(['read']),
+    ],
   }),
     
   triggers: {
