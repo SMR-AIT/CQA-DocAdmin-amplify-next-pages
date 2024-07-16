@@ -16,7 +16,7 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 type Doc = Schema["Doc"]["type"];
 
 interface Column {
-  id: "name" | "size" | "button" | "link";
+  id: "name" | "size" | "button" | "link" | "statusEmbed" | "statusText" | "statusSummary" | "statusVdb";
   label: string;
   minWidth?: number;
   align?: "right" | "justify" | "center" | "left" | "inherit" | undefined;
@@ -35,6 +35,13 @@ const columns: readonly Column[] = [
   },
   {
     id: "button",
+    label: "",
+    minWidth: 100,
+    align: "justify",
+    format: (value: number) => value.toLocaleString("en-US"),
+  },
+  {
+    id: "statusEmbed",
     label: "",
     minWidth: 100,
     align: "justify",
