@@ -61,7 +61,7 @@ const schema = a.schema({
       message: a.string().required(),
     })
     .returns(a.ref("OrderStatusChange"))
-    .authorization((allow) => [allow.publicApiKey(), allow.guest()])
+    .authorization((allow) => [allow.publicApiKey()])
     .handler(
       a.handler.custom({
         entry: "./publishOrderFromEventBridge.js",
