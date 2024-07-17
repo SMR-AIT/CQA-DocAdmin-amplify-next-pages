@@ -31,7 +31,7 @@ const eventBus = aws_events.EventBus.fromEventBusName(
 );
 
 // Add the EventBridge data source
-backend.data.addEventBridgeDataSource("MyEventBridgeDataSource", eventBus);
+backend.data.addEventBridgeDataSource("EventBridgeDataSource", eventBus);
 
 // Create a policy statement to allow invoking the AppSync API's mutations
 const policyStatement = new PolicyStatement({
