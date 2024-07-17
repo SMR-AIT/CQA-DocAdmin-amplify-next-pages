@@ -42,22 +42,22 @@ export async function updateDocStatus() {
         console.log(id)
         if (txts.includes(id)){
             try{
-                client.models.Doc.update({ id: id, statusText: 'Done' });
-                console.log('succeed')
+                const result = client.models.Doc.update({ id: id, statusText: 'Done' });
+                console.log(result)
             }catch(error){
                 console.log(error);
             }
         }else if(embeds.includes(id)){
             try{
-                client.models.Doc.update({ id: id, statusEmbed: 'Done' });
-                console.log('succeed')
+                const result = client.models.Doc.update({ id: id, statusEmbed: 'Done' });
+                console.log(result)
             }catch(error){
                 console.log(error);
             }
         }else if(summaries.includes(id)){
             try{
-                client.models.Doc.update({ id: id, statusSummary: 'Done' });
-                console.log('succeed')
+                const result = client.models.Doc.update({ id: id, statusSummary: 'Done' });
+                console.log(result)
             }catch(error){
                 console.log(error);
             }
