@@ -2,8 +2,8 @@ import { S3Event, S3Handler } from 'aws-lambda';
 // import AWS from 'aws-sdk';
 import fetch from 'node-fetch';
 
-const appsyncUrl = 'YOUR_APPSYNC_ENDPOINT'; // Replace with your AppSync endpoint
-const region = 'YOUR_AWS_REGION'; // Replace with your AWS region
+const appsyncUrl = 'https://ufvdkwwg3zcu3n2rqdprati5ra.appsync-api.ap-northeast-1.amazonaws.com/graphql';
+const region = 'ap-northeast-1'; // Replace with your AWS region
 
 // Function to execute GraphQL mutation against AppSync
 async function executeGraphQLMutation(mutation: string, variables: any) {
@@ -21,6 +21,15 @@ async function executeGraphQLMutation(mutation: string, variables: any) {
     return response.json();
 }
 
+const folder_doc = 'Doc/'
+const folder_index = 'Index/'
+const folder_pdf = 'pdf/'
+const folder_txt = 'txt/'
+
+const file_txt = 'Extract_doc_squeezed.txt';
+const file_sum = 'Summary_chatgpt.txt';
+const file_ebd = 'Embeddings.npy';
+
 export const handler: S3Handler = async (event: S3Event) => {
     const objectKeys = event.Records.map(record => record.s3.object.key);
     console.log(`Upload handler invoked for objects [${objectKeys.join(', ')}]`);
@@ -30,12 +39,18 @@ export const handler: S3Handler = async (event: S3Event) => {
 
         let status = ''
         let id = ''
-        if (key.endsWith('Extract_doc_squeezed.txt')) { 
+        if (key.endsWith(file_txt)) { 
             status = 'statusText'; 
-            id = key.slice(0, -('Extract_doc_squeezed.txt'.length+1))
+            id = key.slice(folder_txt.length, -(file_txt.length+1));
         }
-        else if (key.endsWith('Summary_chatgpt.txt')) { status = 'statusSummary'; }
-        else if (key.endsWith('Embeddings.npy')) { status = 'statusEmbed'; }
+        else if (key.endsWith(file_sum)) { 
+            status = 'statusSummary'; 
+            id = key.slice(folder_txt.length, -(file_sum.length+1));
+        }
+        else if (key.endsWith(file_ebd)) { 
+            status = 'statusEmbed'; 
+            id = key.slice(folder_txt.length, -(file_ebd.length+1));
+        }
         if (status == '') continue;
 
         const mutation = `

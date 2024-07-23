@@ -16,13 +16,14 @@ const Todos = () => {
       sub.unsubscribe();
     };
   }, []);
+  
 
   function testing() {
     console.log("hahaha gotcha");
     return Math.random().toString();
   }
 
-  function createTodo({}) {
+  function createTodo({ }) {
     client.models.Todo.create({
       content: window.prompt("Todo content"),
       id: testing(),
@@ -33,10 +34,30 @@ const Todos = () => {
     client.models.Todo.delete({ id });
   }
 
+  //--------------------------------------------
+  // Subscribe to the mutations triggered by the EventBridge rule
+  useEffect(() => {
+    const sub = client.subscriptions.onOrderFromEventBridge().subscribe({
+      next: (data) => {
+        console.log('subscriptions');
+        console.log(data);
+      },
+    });
+    return () => {
+      console.log('onOrderFromEventBridge => sub.unsubscribe()');
+      sub.unsubscribe();
+    };
+  }, []);
+  
+  //-----------------------------------------------
+
   return (
     <div>
       <h1>To Do List</h1>
       <button onClick={createTodo}>+ new</button>
+      <button onClick={()=>{console.log(client.mutations.publishOrderFromEventBridge({orderId:'123', status:'OrderPending',message: '123message'}));}}>
+        send event
+      </button>
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
