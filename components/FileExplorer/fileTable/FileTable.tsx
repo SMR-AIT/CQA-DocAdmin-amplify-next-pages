@@ -12,11 +12,12 @@ import getIcon from "@/lib/GetIcon";
 import Button from "@mui/material/Button";
 import * as fileOps from "@/lib/FileOps";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { useStateContext } from "..";
 
 type Doc = Schema["Doc"]["type"];
 
 interface Column {
-  id: "name" | "size" | "button" | "link" | "statusEmbed" | "statusText" | "statusSummary" | "statusVdb";
+  id: "name" | "size" | "button" | "link" | "statusPdf" | "statusEmbed" | "statusText" | "statusSummary" | "statusVdb";
   label: string;
   minWidth?: number;
   align?: "right" | "justify" | "center" | "left" | "inherit" | undefined;
@@ -25,10 +26,11 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "name", label: "Name", minWidth: 170 },
-  { id: "statusText", label: "Text", minWidth: 100 },
-  { id: "statusSummary", label: "Summary", minWidth: 100 },
-  { id: "statusEmbed", label: "Embed", minWidth: 100 },
-  { id: "statusVdb", label: "VDB", minWidth: 100 },
+  { id: "statusPdf", label: "pdf", minWidth: 50 },
+  { id: "statusText", label: "Text", minWidth: 50 },
+  { id: "statusSummary", label: "Summary", minWidth: 50 },
+  { id: "statusEmbed", label: "Embed", minWidth: 50 },
+  { id: "statusVdb", label: "VDB", minWidth: 50 },
   {
     id: "size",
     label: "Size",
@@ -55,6 +57,7 @@ interface Data {
   action: "delete";
   link: string;
   doc: Doc;
+  statusPdf: string;
   statusText: string; //'Done'|'Pending'|'Undone';
   statusSummary: string; //'Done'|'Pending'|'Undone';
   statusEmbed: string; //'Done'|'Pending'|'Undone';
@@ -70,10 +73,11 @@ function createData(doc: Doc): Data {
     action: "delete",
     doc: doc,
     link: doc.url!,
-    statusText: doc.statusText??"Undone",
-    statusSummary: doc.statusSummary??"Undone",
-    statusEmbed: doc.statusEmbed??"Undone",
-    statusVdb: doc.statusVdb??"Undone",
+    statusPdf: doc.statusPdf ?? "Undone",
+    statusText: doc.statusText ?? "Undone",
+    statusSummary: doc.statusSummary ?? "Undone",
+    statusEmbed: doc.statusEmbed ?? "Undone",
+    statusVdb: doc.statusVdb ?? "Undone",
   };
 }
 
@@ -88,6 +92,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const { modified, setModified } = useStateContext();
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -139,7 +144,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
                               <Button
                                 variant="contained"
                                 color="error"
-                                onClick={() => fileOps.deleteDoc(row.doc)}
+                                onClick={() => {fileOps.deleteDoc(row.doc); setModified(true)}}
                               >
                                 刪除
                               </Button>

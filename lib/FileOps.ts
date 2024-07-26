@@ -139,6 +139,11 @@ export async function createFolder(path: string, hasID: (id: string) => boolean)
                 path: path,
                 type: "folder",
                 url: "#",
+                statusEmbed: '',
+                statusText: '',
+                statusPdf: '',
+                statusVdb: '',
+                statusSummary: ''
             });
             console.log("response (create folder): ", response_create);
         } else {

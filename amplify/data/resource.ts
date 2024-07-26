@@ -23,6 +23,7 @@ const schema = a.schema({
       path: a.string(),
       owner: a.string(),
       url: a.string(),
+      status: a.string().default(''),
       statusPdf: a.string().default('Undone'),
       statusText: a.string().default('Undone'),
       statusSummary: a.string().default('Undone'),

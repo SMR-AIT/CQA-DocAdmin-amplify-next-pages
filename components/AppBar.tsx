@@ -13,6 +13,8 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { UseAuthenticator } from "@aws-amplify/ui-react-core";
+import AccountMenu from "./AccountMenu";
+import { signOut } from "aws-amplify/auth";
 export type SignOut = UseAuthenticator["signOut"];
 
 interface page {
@@ -24,9 +26,9 @@ const createData = (name: string, href: string): page => {
 };
 const pages = [
   createData("File Explorer", "/file-explorer"),
-  createData("Change Logs", "/change-logs"),
-  createData("Forum", "/forum"),
-  createData("ToDo List", "/todos"),
+  //   createData("Change Logs", "/change-logs"),
+  //   createData("Forum", "/forum"),
+  //   createData("ToDo List", "/todos"),
 ];
 
 interface ResponsiveAppBarProps {
@@ -35,41 +37,16 @@ interface ResponsiveAppBarProps {
 
 function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
   const [userState, setUserState] = React.useState<"登入" | "登出">("登出");
-  const settings = ["Profile", "Account", "Dashboard", userState];
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    console.log(event);
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleSettings = (name: string) => {
-    if (name === "登出") {
+  const handleSignout = () => {
+    if (userState === "登出") {
       SignOut_func();
       setUserState("登入");
       return;
-    } else if (name === "登入") {
-      //   SignOut_func();
+    } else if (userState === "登入") {
       setUserState("登出");
       return;
     }
-    // setAnchorElUser(null);
   };
 
   return (
@@ -84,7 +61,7 @@ function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
             variant="h6"
             noWrap
             component="a"
-            href="/file-explorer"
+            // href="/file-explorer"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -98,72 +75,10 @@ function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
             SMRxCQA
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem
-                  key={page.name}
-                  onClick={handleCloseNavMenu}
-                  sx={{ color: "white" }}
-                >
-                  <Typography textAlign="center" component="a" href={page.href}>
-                    {page.name}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="/file-explorer"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page.name}
-                onClick={handleCloseNavMenu}
                 component="a"
                 href={page.href}
                 sx={{ my: 2, color: "white", display: "block" }}
@@ -174,37 +89,14 @@ function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px", color: "primary" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+            <Button
+              key='signout'
+              onClick={handleSignout}
+              component="a"
+              sx={{ my: 2, color: "white", display: "block" }}
             >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={() => handleSettings(setting)}
-                  sx={{ background: "blue" }}
-                >
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+              {userState}
+            </Button>
           </Box>
         </Toolbar>
       </Container>
