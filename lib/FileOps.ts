@@ -6,6 +6,7 @@ import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
 import getValidFolderName from "./GetFolderName";
 import "@aws-amplify/ui-react/styles.css";
+import { normalize_filename } from "./FileNameLogic";
 
 Amplify.configure(outputs);
 const root = "Doc/";
@@ -36,26 +37,27 @@ export function goUpLayer(path: string, setNewPath: React.Dispatch<React.SetStat
 
 
 export async function createMultipleDocs(path: string, files: FileList, userName: string, hasID: (id: string) => boolean) {
+    console.log('enter upload')
     if (!files) return;
-
+    console.log('enter upload2')
     try {
-        const skippedFiles:string[] = []
+        const skippedFiles: string[] = []
 
         // Create docs data and Upload all files to Storage:
         await Promise.all(
             Array.from(files).map(async (file) => {
-                
+                const file_name = normalize_filename(file.name)
                 // check if the file already exist
-                const id = path + file.name;
+                const id = path + file_name;
                 if (hasID(id)) {
-                    skippedFiles.push('   \t' + file.name)
-                    console.log('Skip file: ', file.name)
+                    skippedFiles.push('   \t' + file_name)
+                    console.log('Skip file: ', file_name)
                     return;
                 }
 
                 // upload doc file to storage
                 const response_upload = await uploadData({
-                    path: `${root}${path}${file.name}`,
+                    path: `${root}${path}${file_name}`,
                     data: file,
                     options: {
                         contentType: file.type, // contentType is optional
@@ -70,12 +72,13 @@ export async function createMultipleDocs(path: string, files: FileList, userName
                 const region = Amplify.getConfig().Storage?.S3.region;
                 const response_create = await client.models.Doc.create({
                     id: id,
-                    name: file.name,
+                    name: file_name,
                     owner: userName,
                     size: file.size,
                     type: file.type,
                     path: path,
-                    url: `https://${bucket}.s3.${region}.amazonaws.com/${root + path + file.name
+                    status: 'Undone',
+                    url: `https://${bucket}.s3.${region}.amazonaws.com/${root + path + file_name
                         }`,
                 });
                 console.log("response (create doc data): ", response_create);
@@ -84,11 +87,29 @@ export async function createMultipleDocs(path: string, files: FileList, userName
             })
         );
 
-        if (skippedFiles.length!=0){
+        if (skippedFiles.length != 0) {
             alert("已有相同名稱的檔案存在於此路徑，請刪除後再上傳:\n" + skippedFiles.join(',\n'));
         }
     } catch (error) {
         console.error("Error create Doc / file:", error);
+    }
+}
+
+export async function setDocFileStatus(id: string, status:('Undone'| 'Pending'| 'Done')) {
+    try {
+        // get the doc info
+        const { data: updatedDoc, errors } = await client.models.Doc.update({ id: id, status: status });
+
+        // Check if there are any errors returned by the update call
+        if (errors) {
+            console.error('Errors updating the doc:', errors);
+            return;
+        }
+
+        // Log the updated document information
+        console.log('Document updated successfully:', updatedDoc);
+    } catch (error) {
+        console.error("Error updating Doc / file:", error);
     }
 }
 
@@ -201,6 +222,39 @@ export async function deleteDocFolder(id: string) {
     }
 }
 
+
+// export async function setFolderDelete(id: string) {
+//     try {
+
+//         // get the docs in the folder
+//         const { data: docs } = await client.models.Doc.list({
+//             filter: {
+//                 id: { beginsWith: id, },
+//             },
+//         });
+//         console.log("docs to delete: ", docs);
+
+//         // delete doc inside the folder
+//         await Promise.all(
+//             Array.from(docs).map(async (file) => {
+
+//                 // delete all data in that folder
+//                 const { data: updatedDoc, errors } = await client.models.Doc.update({
+//                     id: file.id,
+//                     status: ''
+//                 });
+//                 if (errors) {
+//                     console.log("errors deleting doc: ", errors);
+//                 }
+
+//                 return;
+//             })
+//         );
+//     } catch (error) {
+//         console.error("Error remove Doc / file:", error);
+//     }
+// }
+
 export function deleteDoc(doc: Doc) {
     if (doc.type == "folder") {
         deleteDocFolder(doc.id);
@@ -209,3 +263,53 @@ export function deleteDoc(doc: Doc) {
     }
 }
 
+// export async function removeDeletedStatusFolderData() {
+//     const { data: docs, errors } = await client.models.Doc.list({
+//         filter: {
+//             status: {
+//                 eq: 'deleted',
+//             },
+//         },
+//     });
+
+//     if (errors) {
+//         console.error(errors);
+//         return;
+//     }
+
+//     // delete files
+//     // docs.map(doc => { deleteDoc(doc); })
+//     return;
+// }
+
+
+export async function setUndone2Pending(allDocs:Doc[]) {
+    try {
+
+        // delete doc inside the folder
+        await Promise.all(
+            Array.from(allDocs).map(async (doc) => {
+
+                // update all data in that folder
+                if (doc.status=='Undone'){
+                    const { data: updatedDoc, errors } = await client.models.Doc.update({
+                        id: doc.id,
+                        status: 'Pending',
+                        statusEmbed: 'Pending',
+                        statusText: 'Pending',
+                        statusPdf: 'Pending',
+                        statusSummary: 'Pending',
+                        statusVdb: 'Pending',
+                    });
+                    if (errors) {
+                        console.log("errors update doc: ", errors);
+                    }
+                }
+
+                return;
+            })
+        );
+    } catch (error) {
+        console.error("Error remove Doc / file:", error);
+    }
+}

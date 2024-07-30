@@ -26,11 +26,11 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "name", label: "Name", minWidth: 170 },
-  { id: "statusPdf", label: "pdf", minWidth: 50 },
-  { id: "statusText", label: "Text", minWidth: 50 },
-  { id: "statusSummary", label: "Summary", minWidth: 50 },
-  { id: "statusEmbed", label: "Embed", minWidth: 50 },
-  { id: "statusVdb", label: "VDB", minWidth: 50 },
+  { id: "statusPdf", label: "pdf", minWidth: 50, align: "center" },
+  { id: "statusText", label: "Text", minWidth: 50, align: "center" },
+  { id: "statusSummary", label: "Summary", minWidth: 50, align: "center" },
+  { id: "statusEmbed", label: "Embed", minWidth: 50, align: "center" },
+  { id: "statusVdb", label: "VDB", minWidth: 50, align: "center" },
   {
     id: "size",
     label: "Size",
@@ -46,8 +46,6 @@ const columns: readonly Column[] = [
     align: "justify",
     format: (value: number) => value.toLocaleString("en-US"),
   },
-
-
 ];
 
 interface Data {
@@ -92,7 +90,6 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const { modified, setModified } = useStateContext();
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -144,7 +141,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
                               <Button
                                 variant="contained"
                                 color="error"
-                                onClick={() => {fileOps.deleteDoc(row.doc); setModified(true)}}
+                                onClick={() => {fileOps.deleteDoc(row.doc);}}
                               >
                                 刪除
                               </Button>
@@ -162,7 +159,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
                                   }
                                 }}
                               >
-                                連結
+                                {row.doc.type === "folder" ? "進入" : "連結"}
                               </Button>
                             </ButtonGroup>
                           </TableCell>
