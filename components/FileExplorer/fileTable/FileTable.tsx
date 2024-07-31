@@ -25,7 +25,7 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-  { id: "name", label: "Name", minWidth: 170 },
+  { id: "name", label: "Name", minWidth: 100 },
   { id: "statusPdf", label: "pdf", minWidth: 50, align: "center" },
   { id: "statusText", label: "Text", minWidth: 50, align: "center" },
   { id: "statusSummary", label: "Summary", minWidth: 50, align: "center" },
@@ -89,7 +89,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
   setNewPath: setPath,
 }) => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10000);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);

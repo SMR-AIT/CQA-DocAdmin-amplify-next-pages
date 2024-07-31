@@ -16,6 +16,14 @@ export const storage = defineStorage({
     'pdf/*': [
       allow.authenticated.to(['read']),
     ],
-  })
+  }),
     
+  triggers: {
+    onUpload: defineFunction({
+      entry: './on-upload-handler.ts'
+    }),
+    onDelete: defineFunction({
+      entry: './on-delete-handler.ts'
+    })
+  }
 });

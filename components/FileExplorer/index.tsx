@@ -43,15 +43,20 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     const allFieldsDone = fieldsToCheck.every(field =>
       allDocs.every(doc => (doc[field] != 'Undone' && doc.type != 'folder') || (doc.type == 'folder'))
     );
-    fieldsToCheck.map((field, index) => {
-      allDocs.map((doc, doc_index) => {
+    allDocs.map((doc, doc_index) => {
+      const doc_fields_done = fieldsToCheck.every(field=>
+        doc[field]=='Done'
+      )
+      if (doc_fields_done){ doc.status = 'Done'; }
+      fieldsToCheck.map((field, index) => {
         if (!((doc[field] != 'Undone' && doc.type != 'folder') || (doc.type == 'folder'))) {
           console.log(doc, 'file not done')
         } else { console.log('file done') }
       }
       )
     })
-    setModified(!allFieldsDone);
+    // setModified(!allFieldsDone);
+    setModified(true)
   }, [allDocs]);
 
   // subscribe to the doc data
