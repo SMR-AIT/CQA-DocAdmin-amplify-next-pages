@@ -5,8 +5,18 @@ import type { S3Handler } from 'aws-lambda';
 const lambdaClient = new LambdaClient({ region: "ap-northeast-1" });
 
 export const handler: S3Handler = async (event) => {
-  const objectKeys = event.Records.map((record) => record.s3.object.key);
-  console.log(`Delete handler invoked for objects [${objectKeys.join(', ')}]`);
+  const prefixes = ['Doc/'];
+
+  // Filter event.Records in place
+  event.Records = event.Records.filter(record =>
+    prefixes.some(prefix => record.s3.object.key.startsWith(prefix))
+  );
+
+  if (event.Records.length == 0) {
+    console.log(`Skip invoking for uploading`);
+    return;
+  }
+  console.log(`Invoke update for objects [${event.Records.join(', ')}]`);
 
   // Prepare the payload to pass to the other Lambda function
   const payload = JSON.stringify(event);
