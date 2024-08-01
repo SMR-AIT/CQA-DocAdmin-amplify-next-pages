@@ -7,8 +7,14 @@ import { preSignUp } from "./pre-sign-up/resource";
  */
 export const auth = defineAuth({
   loginWith: {
-    email: true,
+    email: {
+      verificationEmailStyle: "CODE",
+      verificationEmailSubject: "🌞歡迎使用日月精耀問答機器人管理系統🌝",
+      verificationEmailBody: (createCode) => `您好:\n請使用此驗證碼驗證您的信箱: ${createCode()}\n`,
+    },
   },
+
+  groups: ["ADMINS"],
 
   triggers: {
     preSignUp,

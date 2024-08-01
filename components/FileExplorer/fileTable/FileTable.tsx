@@ -12,7 +12,6 @@ import getIcon from "@/lib/GetIcon";
 import Button from "@mui/material/Button";
 import * as fileOps from "@/lib/FileOps";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import { useStateContext } from "..";
 
 type Doc = Schema["Doc"]["type"];
 
@@ -89,7 +88,7 @@ const StickyHeadTable: React.FC<StickyHeadTableProps> = ({
   setNewPath: setPath,
 }) => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10000);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
