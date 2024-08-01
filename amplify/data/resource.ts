@@ -23,12 +23,12 @@ const schema = a.schema({
       path: a.string(),
       owner: a.string(),
       url: a.string(),
-      status: a.enum(["-", "Undone", "Pending", "Done"]), // Undone | Pending | Done
-      statusPdf: a.enum(["-", "Undone", "Pending", "Done"]),
-      statusText: a.enum(["-", "Undone", "Pending", "Done"]),
-      statusSummary: a.enum(["-", "Undone", "Pending", "Done"]),
-      statusEmbed: a.enum(["-", "Undone", "Pending", "Done"]),
-      statusVdb: a.enum(["-", "Undone", "Pending", "Done"]),
+      status: a.string(), // Undone | Pending | Done
+      statusPdf: a.string(),
+      statusText: a.string(),
+      statusSummary: a.string(),
+      statusEmbed: a.string(),
+      statusVdb: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 
