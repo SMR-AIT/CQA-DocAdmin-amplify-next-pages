@@ -78,6 +78,11 @@ export async function createMultipleDocs(path: string, files: FileList, userName
           type: file.type,
           path: path,
           status: 'Undone',
+          statusEmbed: 'Undone',
+          statusText: 'Undone',
+          statusPdf: 'Undone',
+          statusVdb: 'Undone',
+          statusSummary: 'Undone',
           url: `https://${bucket}.s3.${region}.amazonaws.com/${root + path + file_name
             }`,
         });
@@ -295,7 +300,7 @@ export function deleteDoc(doc: Doc) {
 // }
 export async function refreshStatus(allDocs: Doc[]) {
   try {
-    const statusList:Array<keyof Doc> = ['status', 'statusEmbed', 'statusText', 'statusPdf', 'statusSummary', 'statusVdb']
+    const statusList: Array<keyof Doc> = ['status', 'statusEmbed', 'statusText', 'statusPdf', 'statusSummary', 'statusVdb']
     // delete doc inside the folder
     await Promise.all(
       Array.from(allDocs).map(async (doc) => {
@@ -303,13 +308,13 @@ export async function refreshStatus(allDocs: Doc[]) {
         // update all data in that folder
         if (doc.status == 'Pending') {
           const { data: updatedDoc, errors } = await client.models.Doc.update({
-            id:doc.id,
-            status: doc.status=='Pending'? 'Undone':doc.status,
-            statusText: doc.statusText=='Pending'? 'Undone':doc.statusText,
-            statusPdf: doc.statusPdf=='Pending'? 'Undone':doc.statusPdf,
-            statusSummary: doc.statusSummary=='Pending'? 'Undone':doc.statusSummary,
-            statusEmbed: doc.statusEmbed=='Pending'? 'Undone':doc.statusEmbed,
-            statusVdb: doc.statusVdb=='Pending'? 'Undone':doc.statusVdb,
+            id: doc.id,
+            status: doc.status == 'Pending' ? 'Undone' : doc.status,
+            statusText: doc.statusText == 'Pending' ? 'Undone' : doc.statusText,
+            statusPdf: doc.statusPdf == 'Pending' ? 'Undone' : doc.statusPdf,
+            statusSummary: doc.statusSummary == 'Pending' ? 'Undone' : doc.statusSummary,
+            statusEmbed: doc.statusEmbed == 'Pending' ? 'Undone' : doc.statusEmbed,
+            statusVdb: doc.statusVdb == 'Pending' ? 'Undone' : doc.statusVdb,
           });
           if (errors) {
             console.log("errors update doc: ", errors);

@@ -64,8 +64,8 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       }
       )
     })
-    // setModified(!allFieldsDone);
-    setModified(true)
+    setModified(!allFieldsDone);
+    // setModified(true)
   }, [allDocs]);
 
   // subscribe to the doc data

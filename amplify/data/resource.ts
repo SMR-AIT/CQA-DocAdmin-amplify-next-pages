@@ -23,62 +23,23 @@ const schema = a.schema({
       path: a.string(),
       owner: a.string(),
       url: a.string(),
-      status: a.string(), // Undone | Pending | Done
-      statusPdf: a.string(),
-      statusText: a.string(),
-      statusSummary: a.string(),
-      statusEmbed: a.string(),
-      statusVdb: a.string(),
+      status: a.string().default('Undone'), // Undone | Pending | Done
+      statusPdf: a.string().default('Undone'),
+      statusText: a.string().default('Undone'),
+      statusSummary: a.string().default('Undone'),
+      statusEmbed: a.string().default('Undone'),
+      statusVdb: a.string().default('Undone'),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 
-
-  OrderStatus: a.enum(["OrderPending", "OrderShipped", "OrderDelivered"]),
-  OrderStatusChange: a.customType({
-    orderId: a.id().required(),
-    status: a.ref("OrderStatus").required(),
-    message: a.string().required(),
-  }),
-
-  publishOrderToEventBridge: a
-    .mutation()
-    .arguments({
-      orderId: a.id().required(),
-      status: a.string().required(),
-      message: a.string().required(),
+  log: a
+    .model({
+      name: a.string().required(),
+      datetime: a.datetime(),
+      action: a.string(),
+      object: a.string(),
     })
-    .returns(a.ref("OrderStatusChange"))
-    .authorization((allow) => [allow.publicApiKey()])
-    .handler(
-      a.handler.custom({
-        dataSource: "EventBridgeDataSource",
-        entry: "./publishOrderToEventBridge.js",
-      })
-    ),
-  publishOrderFromEventBridge: a
-    .mutation()
-    .arguments({
-      orderId: a.id().required(),
-      status: a.string().required(),
-      message: a.string().required(),
-    })
-    .returns(a.ref("OrderStatusChange"))
-    .authorization((allow) => [allow.publicApiKey()])
-    .handler(
-      a.handler.custom({
-        entry: "./publishOrderFromEventBridge.js",
-      })
-    ),
-  onOrderFromEventBridge: a
-    .subscription()
-    .for(a.ref("publishOrderFromEventBridge"))
-    .authorization((allow) => [allow.publicApiKey()])
-    .handler(
-      a.handler.custom({
-        entry: "./onOrderFromEventBridge.js",
-      })
-    ),
-
+    .authorization((allow) => [allow.publicApiKey()]),
 
   buildVDB: a
     .query()
