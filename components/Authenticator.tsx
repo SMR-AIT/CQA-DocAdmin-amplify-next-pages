@@ -227,10 +227,10 @@ export const formFields = {
   },
 };
 
-// export default function App() {
-//   return (
-//     <Authenticator formFields={formFields} components={components}>
-//       {({ signOut }) => <button onClick={signOut}>Sign out</button>}
-//     </Authenticator>
-//   );
-// }
+export default function App() {
+  return (
+    <Authenticator formFields={formFields} components={components}>
+      {({ signOut }) => <button onClick={signOut}>Sign out</button>}
+    </Authenticator>
+  );
+}

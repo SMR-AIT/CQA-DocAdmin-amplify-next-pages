@@ -6,12 +6,13 @@ import "@aws-amplify/ui-react/styles.css";
 import ResponsiveAppBar from "@/components/AppBar";
 import { Box } from "@mui/material";
 import { Authenticator } from "@aws-amplify/ui-react";
+import {components, formFields} from "../components/Authenticator";
 
 Amplify.configure(outputs);
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Authenticator>
+    <Authenticator formFields={formFields} components={components}>
       {({ signOut }) => (
         <Box
           sx={{
