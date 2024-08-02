@@ -1,5 +1,5 @@
 import { generateClient } from "aws-amplify/api";
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext, useMemo } from "react";
 import type { Schema } from "@/amplify/data/resource";
 import {
   type WithAuthenticatorProps,
@@ -10,11 +10,12 @@ import outputs from "@/amplify_outputs.json";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import "@aws-amplify/ui-react/styles.css";
-import StickyHeadTable from "./fileTable/FileTable";
+// import StickyHeadTable from "./fileTable/FileTable";
 import * as fileOps from "@/lib/FileOps";
 import { Box, Typography } from "@mui/material";
 import { triggerBuildVdb } from "@/lib/BuildVDB";
 import EnhancedTable from "./fileTable/FileTableSort";
+import { create_log } from "@/lib/LogOps";
 
 Amplify.configure(outputs);
 
@@ -23,9 +24,11 @@ const client = generateClient<Schema>({
   authMode: "apiKey",
 });
 type Doc = Schema["Doc"]["type"];
+type log = Schema["log"]["type"];
 
 // Define the shape of the context
 interface AppContextType {
+  username:string;
   path: string;
   setPath: React.Dispatch<React.SetStateAction<string>>;
   allDocs: Doc[];
@@ -39,11 +42,19 @@ interface AppContextType {
 // Create the context with a default value (could be empty or `undefined`)
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+
 function App({ signOut, user }: WithAuthenticatorProps) {
   const [path, setPath] = useState<string>("");
-  const [allDocs, setAllDocs] = useState<Array<Schema["Doc"]["type"]>>([]);
+  const [allDocs, setAllDocs] = useState<Array<Doc>>([]);
   const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
   const [modified, setModified] = useState<boolean>(false);
+  // const undoneDocs:string = useMemo(
+  //   ()=>{return allDocs.map((doc)=>doc.id).join(', ')},
+  //   [allDocs]
+  // );
+  // const getUndoneDocsName = (): string=>{
+  //   return allDocs.map((doc)=>doc.id).join(', ')
+  // }
 
   // set '更新部署' to true if there is any status == undone
   useEffect(() => {
@@ -65,7 +76,6 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       )
     })
     setModified(!allFieldsDone);
-    // setModified(true)
   }, [allDocs]);
 
   // subscribe to the doc data
@@ -103,10 +113,10 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
   const hasID = (idToCheck: string) => { return allDocs.some(doc => doc.id === idToCheck) }
 
-
+  const username:string = user?.signInDetails?.loginId?.split('@')[0]??'Unknown';
   return (
     <AppContext.Provider
-      value={{ path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified }}
+      value={{ username, path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified }}
     >
 
       <main className="app-container">
@@ -117,7 +127,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           width: '100%',
           marginTop: '12vh', marginBottom: '0.75vh'
         }}>
-          <Typography variant='h6' >使用者名稱: {user?.signInDetails?.loginId?.split('@')[0]}</Typography>
+          <Typography variant='h6' >使用者名稱: {username}</Typography>
           <ButtonGroup
             variant="contained"
             aria-label="Basic button group"
@@ -134,13 +144,19 @@ function App({ signOut, user }: WithAuthenticatorProps) {
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,.odt,image/*"
-                onChange={(e) =>
+                onChange={(e) =>{
                   fileOps.createMultipleDocs(
                     path,
                     e.target.files!,
                     user?.username!,
                     hasID
                   )
+                  create_log({
+                    name:username!, 
+                    action:'上傳檔案', 
+                    object:`上傳 "${Array.from(e.target.files!).map(file => file.name).join(', ')}" 到此位置:"./${path}" `
+                  });
+                }
                 }
                 style={{ display: "none" }}
                 multiple
@@ -167,7 +183,12 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             </Button>
 
             <Button
-              onClick={() => { fileOps.setUndone2Pending(allDocs); triggerBuildVdb(); }} color="warning"
+              onClick={() => { 
+                fileOps.setUndone2Pending(allDocs); 
+                triggerBuildVdb(); 
+                create_log({name:username!, action:'啟動更新部署', object:allDocs.map((doc)=>doc.id).join(', ')}); 
+              }} 
+                color="warning"
               disabled={!modified}
             >
               更新部署

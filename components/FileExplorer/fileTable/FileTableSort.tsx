@@ -26,6 +26,8 @@ import * as fileOps from "@/lib/FileOps";
 import { useAppContext } from "..";
 import { Flex } from '@aws-amplify/ui-react';
 import { status2chip } from './Status2Chip';
+import { User } from 'aws-cdk-lib/aws-iam';
+import { create_log } from '@/lib/LogOps';
 
 
 
@@ -264,6 +266,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 interface EnhancedTableToolbarProps {
   selected: readonly string[];
   setSelected: React.Dispatch<React.SetStateAction<readonly string[]>>;
+  username: string
 }
 
 const cell_styles = {
@@ -277,7 +280,7 @@ const cell_styles = {
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   const { path } = useAppContext();
-  const { selected, setSelected } = props;
+  const { username, selected, setSelected } = props;
   const numSelected = selected.length;
   return (
     <Toolbar
@@ -311,7 +314,13 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       )}
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton onClick={() => { selected.map((id) => { fileOps.deleteDocFile(id); setSelected([])}) }}>
+          <IconButton onClick={() => {
+            create_log({name:username, action:'刪除檔案', object:selected.join(', ')});
+            selected.map((id) => {
+              fileOps.deleteDocFile(id);
+              setSelected([])
+            })
+          }}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -330,11 +339,11 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 interface StickyHeadSortTableProps {
 }
 const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
-  const { path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified } = useAppContext();
+  const {username, path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified } = useAppContext();
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('status');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [lastSelected, setLastSelected] = React.useState<number|null>(null);
+  const [lastSelected, setLastSelected] = React.useState<number | null>(null);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -358,7 +367,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
 
   // const rows = React.useMemo(()=>currentDocs.map(doc => { return createData(doc); }), [currentDocs]);
   React.useEffect(
-    () =>{
+    () => {
       const tempRows = currentDocs.map(doc => { return createData(doc); })
       setRows(stableSort(tempRows, getComparator(order, orderBy)));
     },
@@ -380,10 +389,10 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
   };
 
   const createRange = (start: number, end: number, step: number = 1): number[] => {
-    if (end<start){
+    if (end < start) {
       console.log('haha')
       console.log('start', start, 'end', end)
-      return Array.from({ length: Math.ceil((start - end + 1) / step) }, (_, i) => end + i * step);  
+      return Array.from({ length: Math.ceil((start - end + 1) / step) }, (_, i) => end + i * step);
     }
     console.log('start', start, 'end', end)
     return Array.from({ length: Math.ceil((end - start + 1) / step) }, (_, i) => start + i * step);
@@ -396,16 +405,16 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
 
     if (selectedIndex === -1) {
       // Not found: add to the list
-      const selectedIndex = rows.findIndex((row)=>row.id==id)
-      if (lastSelected!=null && event.shiftKey){
-        const indexes:number[] = createRange(lastSelected, selectedIndex);
-        const ids = indexes.map(index=>rows[index].id);
+      const selectedIndex = rows.findIndex((row) => row.id == id)
+      if (lastSelected != null && event.shiftKey) {
+        const indexes: number[] = createRange(lastSelected, selectedIndex);
+        const ids = indexes.map(index => rows[index].id);
         newSelected = addItemsWithoutOverlap(selected, ids);
-      }else{
+      } else {
         newSelected = newSelected.concat(selected, id);
       }
       setLastSelected(selectedIndex);
-    } else{ // remove from the list
+    } else { // remove from the list
       setLastSelected(null);
       if (selectedIndex === 0) { // Remove the first item
         newSelected = newSelected.concat(selected.slice(1));
@@ -441,7 +450,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   React.useEffect(
-    ()=>{
+    () => {
       setVisibleRows(rows.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
@@ -457,7 +466,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
 
       <Box sx={{ width: '100%' }}>
         <Paper sx={{ width: '100%', mb: 2 }}>
-          <EnhancedTableToolbar selected={selected} setSelected={setSelected}/>
+          <EnhancedTableToolbar selected={selected} setSelected={setSelected} username={username}/>
           <TableContainer sx={{ flexGrow: 1, height: "55vh", width: '90vw' }}>
             <Table
               sx={{ minWidth: 750 }}

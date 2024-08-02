@@ -2,19 +2,19 @@ import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
+// import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
+// import Menu from "@mui/material/Menu";
+// import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
+// import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+// import Tooltip from "@mui/material/Tooltip";
+// import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { UseAuthenticator } from "@aws-amplify/ui-react-core";
-import AccountMenu from "./AccountMenu";
-import { signOut } from "aws-amplify/auth";
+// import AccountMenu from "./AccountMenu";
+// import { signOut } from "aws-amplify/auth";
 export type SignOut = UseAuthenticator["signOut"];
 
 interface page {
@@ -26,7 +26,7 @@ const createData = (name: string, href: string): page => {
 };
 const pages = [
   createData("File Explorer", "/file-explorer"),
-  //   createData("Change Logs", "/change-logs"),
+  createData("Change Logs", "/change-logs"),
   //   createData("Forum", "/forum"),
   //   createData("ToDo List", "/todos"),
 ];
@@ -61,7 +61,7 @@ function ResponsiveAppBar({ signOut: SignOut_func }: ResponsiveAppBarProps) {
             variant="h6"
             noWrap
             component="a"
-            // href="/file-explorer"
+            href="/file-explorer"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },

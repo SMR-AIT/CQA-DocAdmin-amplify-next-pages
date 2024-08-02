@@ -1,4 +1,4 @@
-import ChangeLogs from '../components/ChangeLogs';
+import ChangeLogs from '@/components/ChangeLog/index';
 
 export default function ChangeLogsPage() {
   return <ChangeLogs />;

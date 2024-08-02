@@ -3,12 +3,13 @@ import { uploadData, remove } from "aws-amplify/storage";
 import React from "react";
 import type { Schema } from "../amplify/data/resource";
 import { Amplify } from "aws-amplify";
-import outputs from "../amplify_outputs.json";
+// import outputs from "../amplify_outputs.json";
 import getValidFolderName from "./GetFolderName";
 import "@aws-amplify/ui-react/styles.css";
 import { normalize_filename } from "./FileNameLogic";
+import { create_log } from "./LogOps";
 
-Amplify.configure(outputs);
+// Amplify.configure(outputs);
 const root = "Doc/";
 
 // Generating the client
@@ -87,7 +88,7 @@ export async function createMultipleDocs(path: string, files: FileList, userName
             }`,
         });
         console.log("response (create doc data): ", response_create);
-
+        create_log({name: '自動', action:'成功上傳檔案', object:`已上傳檔案 "./${id}"`});
         return;
       })
     );
@@ -97,6 +98,8 @@ export async function createMultipleDocs(path: string, files: FileList, userName
     }
   } catch (error) {
     console.error("Error create Doc / file:", error);
+    const filenames = Array.from(files).map(file => file.name).join(', ');
+    create_log({name: '自動', action:'上傳檔案失敗', object:`上傳檔案 "${filenames}" 的過程中發生了錯誤。`});
   }
 }
 
@@ -147,10 +150,12 @@ export async function deleteDocFile(id: string) {
       id: id,
     });
     console.log("response (delete doc): ", response_delete);
+    create_log({name: '自動', action:'成功刪除檔案', object:`已刪除檔案 "${id}"`});
 
     // setCurrentDocs(currentDocs.filter((doc) => doc.id != id));
   } catch (error) {
     console.error("Error delete Doc / file:", error);
+    create_log({name: '自動', action:'刪除檔案失敗', object:`刪除檔案 "${id}" 的過程中發生了錯誤。`});
   }
 }
 
@@ -160,7 +165,9 @@ export async function createFolder(path: string, hasID: (id: string) => boolean)
     folderName = getValidFolderName()!;
     const id = path + folderName + '/';
     if (!hasID(id)) break;
-    else alert("已存在同樣名稱的資料夾在此路徑，請重新命名。")
+    else {
+      alert("已存在同樣名稱的資料夾在此路徑，請重新命名。")
+    }
   }
   try {
     // Create docs data and Upload all files to Storage:
@@ -184,6 +191,8 @@ export async function createFolder(path: string, hasID: (id: string) => boolean)
         statusSummary: '-'
       });
       console.log("response (create folder): ", response_create);
+      create_log({name: '自動', action:'成功建立資料夾', object:`已建立資料夾路徑: "./${path}${folderName}/"`});
+
     } else {
       console.log("User canceled the input.");
     }
@@ -217,25 +226,28 @@ export async function deleteDocFolder(id: string) {
     console.log("response (delete doc folder): ", response_delete_folder);
 
     // delete doc inside the folder
+    create_log({name: '自動', action:'開始刪除資料夾', object:`開始刪除資料夾 "${id}"`});
     await Promise.all(
       Array.from(docs).map(async (file) => {
         // delete all data in that folder
-        const response_delete = await client.models.Doc.delete({
-          id: file.id,
-        });
-        console.log("response (delete doc): ", response_delete);
+        deleteDocFile(file.id);
+        // const response_delete = await client.models.Doc.delete({
+        //   id: file.id,
+        // });
+        // console.log("response (delete doc): ", response_delete);
 
         // remove doc file in storage
-        const response_remove = await remove({
-          path: `${root}${file.path}${file.name}`,
-        });
-        console.log("response (remove s3 obj): ", response_remove);
-
+        // const response_remove = await remove({
+        //   path: `${root}${file.path}${file.name}`,
+        // });
+        // console.log("response (remove s3 obj): ", response_remove);
+        // create_log({name: '自動', action:'成功刪除檔案', object:`已刪除檔案 "${file.id}"`});
         return;
       })
     );
   } catch (error) {
     console.error("Error remove Doc / file:", error);
+    create_log({name: '自動', action:'刪除資料夾失敗', object:`刪除資料夾 "${id}" 的過程中發生了錯誤。`});
   }
 }
 
