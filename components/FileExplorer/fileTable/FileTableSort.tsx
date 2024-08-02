@@ -25,6 +25,7 @@ import { createTheme, Link, ThemeProvider } from '@mui/material';
 import * as fileOps from "@/lib/FileOps";
 import { useAppContext } from "..";
 import { Flex } from '@aws-amplify/ui-react';
+import { status2chip } from './Status2Chip';
 
 
 
@@ -57,32 +58,6 @@ const theme = createTheme({
     },
   },
 });
-// interface Data {
-//   id: number;
-//   calories: number;
-//   carbs: number;
-//   fat: number;
-//   name: string;
-//   protein: number;
-// }
-
-// function createData(
-//   id: number,
-//   name: string,
-//   calories: number,
-//   fat: number,
-//   carbs: number,
-//   protein: number,
-// ): Data {
-//   return {
-//     id,
-//     name,
-//     calories,
-//     fat,
-//     carbs,
-//     protein,
-//   };
-// }
 
 interface Data {
   id: string,
@@ -476,16 +451,6 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
     },
     [rows]
   )
-  // const visibleRows = React.useMemo(
-  //   () =>{
-  //     console.log('update visibleRows');
-  //     return rows.slice(
-  //       page * rowsPerPage,
-  //       page * rowsPerPage + rowsPerPage,
-  //     );
-  //   },
-  //   [rows],
-  // );
 
   return (
     <ThemeProvider theme={theme}>
@@ -561,12 +526,12 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right">{row.size}</TableCell>
-                      <TableCell align="right">{row.status}</TableCell>
-                      <TableCell align="right">{row.pdf}</TableCell>
-                      <TableCell align="right">{row.text}</TableCell>
-                      <TableCell align="right">{row.summary}</TableCell>
-                      <TableCell align="right">{row.embedding}</TableCell>
-                      <TableCell align="right">{row.vdb}</TableCell>
+                      <TableCell align="right">{status2chip(row.status)}</TableCell>
+                      <TableCell align="right">{status2chip(row.pdf)}</TableCell>
+                      <TableCell align="right">{status2chip(row.text)}</TableCell>
+                      <TableCell align="right">{status2chip(row.summary)}</TableCell>
+                      <TableCell align="right">{status2chip(row.embedding)}</TableCell>
+                      <TableCell align="right">{status2chip(row.vdb)}</TableCell>
                     </TableRow>
                   );
                 })}

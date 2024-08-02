@@ -117,7 +117,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           width: '100%',
           marginTop: '12vh', marginBottom: '0.75vh'
         }}>
-          <Typography variant='h5' >user:{user?.username}</Typography>
+          <Typography variant='h6' >使用者名稱: {user?.signInDetails?.loginId?.split('@')[0]}</Typography>
           <ButtonGroup
             variant="contained"
             aria-label="Basic button group"
