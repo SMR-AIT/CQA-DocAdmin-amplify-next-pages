@@ -13,8 +13,15 @@ export const auth = defineAuth({
       verificationEmailBody: (createCode) => `您好:\n請使用此驗證碼驗證您的信箱: ${createCode()}\n`,
     },
   },
+    
+  userAttributes: {
+    nickname:{
+      mutable: false,
+      required: true,
+    },    
+  },
 
-  groups: ["ADMINS"],
+  groups: ["ADMINS", "EDITORS"],
 
   triggers: {
     preSignUp,

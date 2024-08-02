@@ -1,5 +1,4 @@
 import { defineBackend } from '@aws-amplify/backend';
-// import { auth } from './auth_/resource';
 import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { buildVDB } from './functions/buildVDB/resource';
@@ -14,7 +13,6 @@ import { buildVDB } from './functions/buildVDB/resource';
 
 
 export const backend = defineBackend({
-  // auth,
   data,
   storage,
   buildVDB,
