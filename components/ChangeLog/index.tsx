@@ -140,7 +140,7 @@ export default function LogDataGrid() {
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '90vw',
-        height: '85vh',
+        height: '83.5vh',
         marginTop: '12vh', marginBottom: '0.75vh'
       }}>
           <PrimarySearchAppBar />
