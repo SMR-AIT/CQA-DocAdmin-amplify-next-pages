@@ -140,8 +140,8 @@ export default function LogDataGrid() {
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '90vw',
-        height: '80vh',
-        marginTop: '15vh', marginBottom: '0.5vh'
+        height: '85vh',
+        marginTop: '12vh', marginBottom: '0.75vh'
       }}>
           <PrimarySearchAppBar />
           <DataGrid
@@ -160,7 +160,7 @@ export default function LogDataGrid() {
             pageSizeOptions={[15]}
             checkboxSelection
             disableRowSelectionOnClick
-            rowHeight={30}
+            rowHeight={30}            
           />
       </Box>
 
