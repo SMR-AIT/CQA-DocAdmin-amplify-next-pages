@@ -13,7 +13,7 @@ export const handler: Schema["buildVDB"]["functionHandler"] = async (event) => {
 
   // Create the command to invoke the Lambda function
   const command = new InvokeCommand({
-    FunctionName: "CodebuildTrigger-CQA-develop",
+    FunctionName: "CodebuildTrigger-CQA",
     Payload: new TextEncoder().encode(payload), // encode payload to Uint8Array
   });
 
@@ -28,7 +28,7 @@ export const handler: Schema["buildVDB"]["functionHandler"] = async (event) => {
     const result = responsePayload ? JSON.parse(responsePayload) : null;
 
     // Return a response
-    return `Hello, ${name}! Invoked another Lambda with response: ${result}`;
+    return `${name}: Invoked another Lambda with response: ${result}`;
   } catch (error) {
     console.error("Error invoking Lambda function", error);
     throw new Error("Failed to invoke Lambda function");

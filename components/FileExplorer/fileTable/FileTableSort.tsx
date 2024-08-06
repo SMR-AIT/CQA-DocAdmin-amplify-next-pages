@@ -392,6 +392,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
   // const rows = React.useMemo(()=>currentDocs.map(doc => { return createData(doc); }), [currentDocs]);
   React.useEffect(
     () => {
+      setRowsPerPage(currentDocs.length)
       const tempRows = currentDocs.map(doc => { return createData(doc); })
       setRows(stableSort(tempRows, getComparator(order, orderBy)));
     },
@@ -590,7 +591,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
               control={<Switch checked={dense} onChange={handleChangeDense} />}
               label="Dense padding"
             />
-            <TablePagination
+            {/* <TablePagination
               rowsPerPageOptions={[5, 10, 25, 100]}
               component="div"
               count={rows.length}
@@ -598,7 +599,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
               page={page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            /> */}
           </Box>
         </Paper>
 

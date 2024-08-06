@@ -28,7 +28,7 @@ type Doc = Schema["Doc"]["type"];
 
 // Define the shape of the context
 interface AppContextType {
-  username:string;
+  username: string;
   path: string;
   setPath: React.Dispatch<React.SetStateAction<string>>;
   allDocs: Doc[];
@@ -74,7 +74,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   // subscribe to the doc data
   useEffect(() => {
     const sub = client.models.Doc.observeQuery().subscribe({
-      next: (data) => {setAllDocs([...data.items]); console.log('index allDocs: ', allDocs)},
+      next: (data) => { setAllDocs([...data.items]); console.log('index allDocs: ', allDocs) },
       error: (err) => console.error("Error fetching documents:", err),
     });
     return () => {
@@ -86,13 +86,21 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: docs } = await client.models.Doc.list({
-          filter: {
-            path: {
-              eq: path,
-            },
-          },
-        });
+        let docs: Doc[] = [];
+        let oldNextToken: string | null | undefined = null;
+
+        do {
+          const { data: newDocs, nextToken: newToken, errors: error } = await client.models.Doc.list({
+            filter: { path: { eq: path } },
+            nextToken: oldNextToken
+          });
+          if (error) {
+            return console.log(error);;
+          }
+          docs = [...docs, ...newDocs]; // Concatenate the arrays
+          oldNextToken = newToken ?? null; // Update the nextToken for the next iteration
+        } while (oldNextToken !== null);
+
         const folders = docs.filter((doc) => doc.type == 'folder' && doc.path == path).sort();
         const docs_rest = docs.filter((doc) => doc.type != 'folder' && doc.path == path).sort();
         setCurrentDocs([...folders, ...docs_rest]);
@@ -106,7 +114,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
 
   const hasID = (idToCheck: string) => { return allDocs.some(doc => doc.id === idToCheck) }
 
-  const username:string = user?.signInDetails?.loginId?.split('@')[0]??'Unknown';
+  const username: string = user?.signInDetails?.loginId?.split('@')[0] ?? 'Unknown';
   return (
     <AppContext.Provider
       value={{ username, path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified }}
@@ -138,7 +146,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,.odt,image/*"
-                onChange={(e) =>{
+                onChange={(e) => {
                   fileOps.createMultipleDocs(
                     path,
                     e.target.files!,
@@ -146,9 +154,9 @@ function App({ signOut, user }: WithAuthenticatorProps) {
                     hasID
                   )
                   create_log({
-                    name:username!, 
-                    action:'上傳檔案', 
-                    object:`上傳 "${Array.from(e.target.files!).map(file => file.name).join(', ')}" 到此位置:"./${path}" `
+                    name: username!,
+                    action: '上傳檔案',
+                    object: `上傳 "${Array.from(e.target.files!).map(file => file.name).join(', ')}" 到此位置:"./${path}" `
                   });
                 }
                 }
@@ -177,19 +185,16 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             </Button>
 
             <Button
-              onClick={() => { 
-                fileOps.setUndone2Pending(allDocs); 
-                triggerBuildVdb(); 
-                create_log({name:username!, action:'啟動更新部署', object:allDocs.map((doc)=>doc.id).join(', ')}); 
-              }} 
-                color="warning"
-              disabled={!modified}
+              onClick={() => {
+                fileOps.setUndone2Pending(allDocs);
+                triggerBuildVdb();
+                create_log({ name: username!, action: '啟動更新部署', object: allDocs.map((doc) => doc.id).join(', ') });
+              }}
+              color="warning"
+              disabled={false}
             >
               更新部署
             </Button>
-            {/* <Button onClick={() => fileOps.refreshStatus(allDocs)} color="warning">
-              重新整理
-            </Button> */}
           </ButtonGroup>
         </Box>
         <EnhancedTable></EnhancedTable>
