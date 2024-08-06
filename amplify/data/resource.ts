@@ -34,7 +34,6 @@ const schema = a.schema({
 
   log: a
     .model({
-      timestamp: a.float().required(),
       name: a.string().required(),
       action: a.string(),
       object: a.string(),      
