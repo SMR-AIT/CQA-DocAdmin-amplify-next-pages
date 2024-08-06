@@ -86,23 +86,24 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let docs: Doc[] = [];
-        let oldNextToken: string | null | undefined = null;
+        // let docs: Doc[] = [];
+        // let oldNextToken: string | null | undefined = null;
 
-        do {
-          const { data: newDocs, nextToken: newToken, errors: error } = await client.models.Doc.list({
-            filter: { path: { eq: path } },
-            nextToken: oldNextToken
-          });
-          if (error) {
-            return console.log(error);;
-          }
-          docs = [...docs, ...newDocs]; // Concatenate the arrays
-          oldNextToken = newToken ?? null; // Update the nextToken for the next iteration
-        } while (oldNextToken !== null);
+        // do {
+        //   const listProps = {
+        //     filter: { path: { eq: path } },
+        //     nextToken: oldNextToken
+        //   };
+        //   const { data: newDocs, nextToken: newToken, errors: error } = await client.models.Doc.list();
+        //   if (error) {
+        //     return console.log(error);
+        //   }
+        //   docs = [...docs, ...newDocs]; // Concatenate the arrays
+        //   oldNextToken = newToken ?? null; // Update the nextToken for the next iteration
+        // } while (oldNextToken !== null);
 
-        const folders = docs.filter((doc) => doc.type == 'folder' && doc.path == path).sort();
-        const docs_rest = docs.filter((doc) => doc.type != 'folder' && doc.path == path).sort();
+        const folders = allDocs.filter((doc) => doc.type == 'folder' && doc.path == path).sort();
+        const docs_rest = allDocs.filter((doc) => doc.type != 'folder' && doc.path == path).sort();
         setCurrentDocs([...folders, ...docs_rest]);
         console.log("current docs updated: ", currentDocs)
       } catch (error) {
