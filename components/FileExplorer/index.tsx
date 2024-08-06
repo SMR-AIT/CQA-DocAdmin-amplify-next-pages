@@ -16,6 +16,7 @@ import { Box, Typography } from "@mui/material";
 import { triggerBuildVdb } from "@/lib/BuildVDB";
 import EnhancedTable from "./fileTable/FileTableSort";
 import { create_log } from "@/lib/LogOps";
+import PrimarySearchAppBar from "./SearchBar";
 
 Amplify.configure(outputs);
 
@@ -24,7 +25,6 @@ const client = generateClient<Schema>({
   authMode: "apiKey",
 });
 type Doc = Schema["Doc"]["type"];
-type log = Schema["log"]["type"];
 
 // Define the shape of the context
 interface AppContextType {
@@ -48,13 +48,6 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   const [allDocs, setAllDocs] = useState<Array<Doc>>([]);
   const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
   const [modified, setModified] = useState<boolean>(false);
-  // const undoneDocs:string = useMemo(
-  //   ()=>{return allDocs.map((doc)=>doc.id).join(', ')},
-  //   [allDocs]
-  // );
-  // const getUndoneDocsName = (): string=>{
-  //   return allDocs.map((doc)=>doc.id).join(', ')
-  // }
 
   // set '更新部署' to true if there is any status == undone
   useEffect(() => {
@@ -128,6 +121,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
           marginTop: '12vh', marginBottom: '0.75vh'
         }}>
           <Typography variant='h6' >使用者名稱: {username}</Typography>
+          <PrimarySearchAppBar></PrimarySearchAppBar>
           <ButtonGroup
             variant="contained"
             aria-label="Basic button group"

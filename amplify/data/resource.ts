@@ -34,10 +34,10 @@ const schema = a.schema({
 
   log: a
     .model({
+      timestamp: a.float().required(),
       name: a.string().required(),
-      datetime: a.datetime(),
       action: a.string(),
-      object: a.string(),
+      object: a.string(),      
     })
     .authorization((allow) => [allow.publicApiKey()]),
 

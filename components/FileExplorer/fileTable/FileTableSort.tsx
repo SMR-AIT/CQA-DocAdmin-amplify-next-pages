@@ -24,9 +24,7 @@ import type { Schema } from "@/amplify/data/resource";
 import { createTheme, Link, ThemeProvider } from '@mui/material';
 import * as fileOps from "@/lib/FileOps";
 import { useAppContext } from "..";
-import { Flex } from '@aws-amplify/ui-react';
 import { status2chip } from './Status2Chip';
-import { User } from 'aws-cdk-lib/aws-iam';
 import { create_log } from '@/lib/LogOps';
 
 
@@ -39,25 +37,42 @@ const theme = createTheme({
     MuiTablePagination: {
       styleOverrides: {
         selectIcon: {
-          color: 'white', // Change the dropdown icon color to white
+          color: 'black', // Change the dropdown icon color to white
         },
         select: {
-          color: 'white', // Change the dropdown text color to white
-          backgroundColor: 'blue', // Change the dropdown background color to blue
+          color: 'black', // Change the dropdown text color to white
+          backgroundColor: 'white', // Change the dropdown background color to blue
           '&:focus': {
-            backgroundColor: 'blue', // Ensure background color remains blue on focus
-          },
-        },
+            backgroundColor: 'white', // Ensure background color remains blue on focus
+          },          
+        },        
         menuItem: {
           backgroundColor: 'white', // Change the background color of menu items to blue
           color: 'black', // Change the text color of menu items to white
           '&:hover': {
             backgroundColor: 'white', // Change the background color on hover
-            color: 'blue', // Change the text color on hover
+            color: 'black', // Change the text color on hover
           },
         },
       },
     },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'white', // Change the background color of menu items to white
+          color: 'black', // Change the text color of menu items to black
+          '&.Mui-selected': {
+            backgroundColor: 'white', // Change the background color of selected menu items to white
+            color: 'black', // Change the text color of selected menu items to black
+            '&:hover': {
+              backgroundColor: 'white', // Change the background color on hover
+              color: 'black', // Change the text color on hover
+            },
+          },
+        },
+      },
+    },
+    
   },
 });
 
@@ -153,6 +168,7 @@ interface HeadCell {
   id: keyof Data;
   label: string;
   numeric: boolean;
+  align: "left" | "center" | "right" | "justify" | "inherit" | undefined;
 }
 
 const headCells: readonly HeadCell[] = [
@@ -161,48 +177,56 @@ const headCells: readonly HeadCell[] = [
     numeric: false,
     disablePadding: true,
     label: '檔案名稱',
+    align: 'left',
   },
   {
     id: 'size',
     numeric: true,
     disablePadding: false,
     label: '檔案大小(KB)',
+    align: 'center',
   },
   {
     id: 'status',
     numeric: true,
     disablePadding: false,
     label: '狀態',
+    align: 'center',
   },
   {
     id: 'pdf',
     numeric: true,
     disablePadding: false,
     label: '轉出pdf檔',
+    align: 'center',
   },
   {
     id: 'text',
     numeric: true,
     disablePadding: false,
     label: '擷取文字',
+    align: 'center',
   },
   {
     id: 'summary',
     numeric: true,
     disablePadding: false,
     label: '擷取大意',
+    align: 'center',
   },
   {
     id: 'embedding',
     numeric: true,
     disablePadding: false,
     label: '向量化',
+    align: 'center',
   },
   {
     id: 'vdb',
     numeric: true,
     disablePadding: false,
     label: '加入向量資料庫',
+    align: 'center',
   },
 ];
 
@@ -240,7 +264,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
+            align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -535,12 +559,12 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right">{row.size}</TableCell>
-                      <TableCell align="right">{status2chip(row.status)}</TableCell>
-                      <TableCell align="right">{status2chip(row.pdf)}</TableCell>
-                      <TableCell align="right">{status2chip(row.text)}</TableCell>
-                      <TableCell align="right">{status2chip(row.summary)}</TableCell>
-                      <TableCell align="right">{status2chip(row.embedding)}</TableCell>
-                      <TableCell align="right">{status2chip(row.vdb)}</TableCell>
+                      <TableCell align="center">{status2chip(row.status)}</TableCell>
+                      <TableCell align="center">{status2chip(row.pdf)}</TableCell>
+                      <TableCell align="center">{status2chip(row.text)}</TableCell>
+                      <TableCell align="center">{status2chip(row.summary)}</TableCell>
+                      <TableCell align="center">{status2chip(row.embedding)}</TableCell>
+                      <TableCell align="center">{status2chip(row.vdb)}</TableCell>
                     </TableRow>
                   );
                 })}
