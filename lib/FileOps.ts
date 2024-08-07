@@ -3,13 +3,11 @@ import { uploadData, remove } from "aws-amplify/storage";
 import React from "react";
 import type { Schema } from "../amplify/data/resource";
 import { Amplify } from "aws-amplify";
-// import outputs from "../amplify_outputs.json";
 import getValidFolderName from "./GetFolderName";
 import "@aws-amplify/ui-react/styles.css";
 import { normalize_filename } from "./FileNameLogic";
 import { create_log } from "./LogOps";
 
-// Amplify.configure(outputs);
 const root = "Doc/";
 
 // Generating the client
@@ -18,7 +16,6 @@ const client = generateClient<Schema>({
 });
 
 type Doc = Schema["Doc"]["type"];
-
 
 
 // go up one layer
@@ -38,9 +35,7 @@ export function goUpLayer(path: string, setNewPath: React.Dispatch<React.SetStat
 
 
 export async function createMultipleDocs(path: string, files: FileList, userName: string, hasID: (id: string) => boolean) {
-  console.log('enter upload')
   if (!files) return;
-  console.log('enter upload2')
   try {
     const skippedFiles: string[] = []
 
@@ -231,17 +226,6 @@ export async function deleteDocFolder(id: string) {
       Array.from(docs).map(async (file) => {
         // delete all data in that folder
         deleteDocFile(file.id);
-        // const response_delete = await client.models.Doc.delete({
-        //   id: file.id,
-        // });
-        // console.log("response (delete doc): ", response_delete);
-
-        // remove doc file in storage
-        // const response_remove = await remove({
-        //   path: `${root}${file.path}${file.name}`,
-        // });
-        // console.log("response (remove s3 obj): ", response_remove);
-        // create_log({name: '自動', action:'成功刪除檔案', object:`已刪除檔案 "${file.id}"`});
         return;
       })
     );
@@ -252,37 +236,6 @@ export async function deleteDocFolder(id: string) {
 }
 
 
-// export async function setFolderDelete(id: string) {
-//     try {
-
-//         // get the docs in the folder
-//         const { data: docs } = await client.models.Doc.list({
-//             filter: {
-//                 id: { beginsWith: id, },
-//             },
-//         });
-//         console.log("docs to delete: ", docs);
-
-//         // delete doc inside the folder
-//         await Promise.all(
-//             Array.from(docs).map(async (file) => {
-
-//                 // delete all data in that folder
-//                 const { data: updatedDoc, errors } = await client.models.Doc.update({
-//                     id: file.id,
-//                     status: ''
-//                 });
-//                 if (errors) {
-//                     console.log("errors deleting doc: ", errors);
-//                 }
-
-//                 return;
-//             })
-//         );
-//     } catch (error) {
-//         console.error("Error remove Doc / file:", error);
-//     }
-// }
 
 export function deleteDoc(doc: Doc) {
   if (doc.type == "folder") {
@@ -292,24 +245,6 @@ export function deleteDoc(doc: Doc) {
   }
 }
 
-// export async function removeDeletedStatusFolderData() {
-//     const { data: docs, errors } = await client.models.Doc.list({
-//         filter: {
-//             status: {
-//                 eq: 'deleted',
-//             },
-//         },
-//     });
-
-//     if (errors) {
-//         console.error(errors);
-//         return;
-//     }
-
-//     // delete files
-//     // docs.map(doc => { deleteDoc(doc); })
-//     return;
-// }
 export async function refreshStatus(allDocs: Doc[]) {
   try {
     const statusList: Array<keyof Doc> = ['status', 'statusEmbed', 'statusText', 'statusPdf', 'statusSummary', 'statusVdb']

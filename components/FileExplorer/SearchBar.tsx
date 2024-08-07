@@ -1,23 +1,8 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import MailIcon from '@mui/icons-material/Mail';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
-import { AppContextType } from 'next/dist/shared/lib/utils';
 import { useAppContext } from '.';
-
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -60,17 +45,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+
+
 export default function PrimarySearchAppBar() {
-  const { allDocs, setCurrentDocs, currentDocs, path, setPath, } = useAppContext();
+  const { allDocs, setCurrentDocs, currentDocs, path} = useAppContext();
+  const [search, setSearch] = React.useState<string>('');
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase();
     console.log('User is typing:', value);
+    setSearch(value)
+
+  };
+
+  React.useEffect(() => {
     const filterlogs = allDocs.filter(
-      (doc) => (doc.name.toLowerCase().includes(value)&&doc.path == path)
+      (doc) => (doc.name.toLowerCase().includes(search) && doc.path == path)
     );
     setCurrentDocs(filterlogs);
-  };
+  }, [search, currentDocs]
+  )
 
   return (
     <Search>

@@ -1,5 +1,3 @@
-import React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
 
 // Helper function to parse the custom date format
 const parseCustomDate = (dateString: string): Date => {
@@ -29,23 +27,17 @@ export const customDateComparator: (v1: string, v2: string) => number = (v1, v2)
 };
 
 export const toLocalISOString = (dateString: string): string => {
-  console.log('dateString: ', dateString)
   try{
-    // Parse the ISO string into a Date object
     const date = new Date(dateString);
-    console.log('date: ', date);
-    // Get the local time offset in hours
     const offset = date.getTimezoneOffset() / 60;
-    console.log('offset: ', offset);
-    // Convert the Date object to a local time zone ISO string
     const localDate = new Date(date.getTime() - (offset * 60 * 60 * 1000));
-    console.log('localDate: ', localDate);
   
     // Format the local date to ISO string
     const localISOString = localDate.toISOString().replace('Z', '');
   
     return localISOString;
   }catch(e){
+    console.log('dateString', dateString)
     console.log(e);
     return '';
   }

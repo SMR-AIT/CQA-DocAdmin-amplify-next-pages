@@ -6,7 +6,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,8 +14,6 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
@@ -44,8 +41,8 @@ const theme = createTheme({
           backgroundColor: 'white', // Change the dropdown background color to blue
           '&:focus': {
             backgroundColor: 'white', // Ensure background color remains blue on focus
-          },          
-        },        
+          },
+        },
         menuItem: {
           backgroundColor: 'white', // Change the background color of menu items to blue
           color: 'black', // Change the text color of menu items to white
@@ -72,7 +69,7 @@ const theme = createTheme({
         },
       },
     },
-    
+
   },
 });
 
@@ -104,9 +101,8 @@ const mapStatus = (status: string): string => {
 };
 
 function createData(doc: Doc): Data {
-  const shown_name = doc.name;//.length > 20 ? doc.name.slice(0, 17) + '...' : doc.name;
+  const shown_name = doc.name;
   const tooltip = doc.name.length > 20 ? doc.name : '';
-  console.log('createData: ', doc);
   return {
     id: doc.id,
     name: shown_name,
@@ -339,7 +335,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton onClick={() => {
-            create_log({name:username, action:'刪除檔案', object:selected.join(', ')});
+            create_log({ name: username, action: '刪除檔案', object: selected.join(', ') });
             selected.map((id) => {
               fileOps.deleteDocFile(id);
               setSelected([])
@@ -363,16 +359,14 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 interface StickyHeadSortTableProps {
 }
 const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
-  const {username, path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified } = useAppContext();
+  const { username, path, setPath, currentDocs } = useAppContext();
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('status');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [lastSelected, setLastSelected] = React.useState<number | null>(null);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(true);
   const [rows, setRows] = React.useState<Data[]>([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const [visibleRows, setVisibleRows] = React.useState<Data[]>([]);
 
 
   React.useEffect(() => {
@@ -389,7 +383,6 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
     setLastSelected(null);
   };
 
-  // const rows = React.useMemo(()=>currentDocs.map(doc => { return createData(doc); }), [currentDocs]);
   React.useEffect(
     () => {
       setRowsPerPage(currentDocs.length)
@@ -455,48 +448,23 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  React.useEffect(
-    () => {
-      setVisibleRows(rows.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage,
-      ));
-      console.log('update visible rows')
-      console.log('Docs', allDocs)
-    },
-    [rows]
-  )
-
   return (
     <ThemeProvider theme={theme}>
 
       <Box sx={{ width: '100%' }}>
         <Paper sx={{ width: '100%', mb: 2 }}>
-          <EnhancedTableToolbar selected={selected} setSelected={setSelected} username={username}/>
-          <TableContainer sx={{ flexGrow: 1, height: "55vh", width: '90vw' }}>
+          <EnhancedTableToolbar selected={selected} setSelected={setSelected} username={username} />
+          <TableContainer sx={{ flexGrow: 1, height: "67.5vh", width: '90vw' }}>
             <Table
               sx={{ minWidth: 750 }}
               aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
+              size='small'
               stickyHeader aria-label="sticky table"
             >
               <EnhancedTableHead
@@ -508,7 +476,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
                 rowCount={rows.length}
               />
               <TableBody>
-                {visibleRows.map((row, index) => {
+                {rows.map((row, index) => {
                   const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -572,7 +540,7 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
                 {emptyRows > 0 && (
                   <TableRow
                     style={{
-                      height: (dense ? 33 : 53) * emptyRows,
+                      height: 33 * emptyRows,
                     }}
                   >
                     <TableCell colSpan={6} />
@@ -581,26 +549,6 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box
-            display="flex"
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="space-between"
-            padding={2}>
-            <FormControlLabel
-              control={<Switch checked={dense} onChange={handleChangeDense} />}
-              label="Dense padding"
-            />
-            {/* <TablePagination
-              rowsPerPageOptions={[5, 10, 25, 100]}
-              component="div"
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            /> */}
-          </Box>
         </Paper>
 
       </Box>
