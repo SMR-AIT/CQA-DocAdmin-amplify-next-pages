@@ -48,7 +48,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function PrimarySearchAppBar() {
-  const { allDocs, setCurrentDocs, currentDocs, path} = useAppContext();
+  const { allDocs, setCurrentShownDocs, currentShownDocs,setCurrentPathDocs, currentPathDocs, path} = useAppContext();
   const [search, setSearch] = React.useState<string>('');
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,11 +59,13 @@ export default function PrimarySearchAppBar() {
   };
 
   React.useEffect(() => {
-    const filterlogs = allDocs.filter(
-      (doc) => (doc.name.toLowerCase().includes(search) && doc.path == path)
+    const allDocs_defined = allDocs.filter(doc=>doc.name !=null&&doc.name!=undefined);
+    const filterlogs = allDocs_defined.filter(
+      (doc) => (doc.name!.toLowerCase().includes(search) && doc.path == path)
     );
-    setCurrentDocs(filterlogs);
-  }, [search, currentDocs]
+    console.log('search', search);
+    setCurrentShownDocs(filterlogs);
+  }, [search, currentPathDocs]
   )
 
   return (

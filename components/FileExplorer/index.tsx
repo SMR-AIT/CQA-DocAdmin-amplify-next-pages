@@ -32,8 +32,10 @@ interface AppContextType {
   setPath: React.Dispatch<React.SetStateAction<string>>;
   allDocs: Doc[];
   setAllDocs: React.Dispatch<React.SetStateAction<Doc[]>>;
-  currentDocs: Doc[];
-  setCurrentDocs: React.Dispatch<React.SetStateAction<Doc[]>>;
+  currentPathDocs: Doc[];
+  setCurrentPathDocs: React.Dispatch<React.SetStateAction<Doc[]>>;
+  currentShownDocs: Doc[];
+  setCurrentShownDocs: React.Dispatch<React.SetStateAction<Doc[]>>;
   modified: boolean;
   setModified: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -45,7 +47,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 function App({ signOut, user }: WithAuthenticatorProps) {
   const [path, setPath] = useState<string>("");
   const [allDocs, setAllDocs] = useState<Array<Doc>>([]);
-  const [currentDocs, setCurrentDocs] = useState<Doc[]>([]);
+  const [currentPathDocs, setCurrentPathDocs] = useState<Doc[]>([]);
+  const [currentShownDocs, setCurrentShownDocs] = useState<Doc[]>([]);
   const [modified, setModified] = useState<boolean>(false);
 
   // set '更新部署' to true if there is any status == undone
@@ -55,21 +58,22 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     const allFieldsDone = fieldsToCheck.every(field =>
       allDocs!.every(doc => (doc[field] != 'Undone' && doc.type != 'folder') || (doc.type == 'folder'))
     );
-    // allDocs.map((doc, doc_index) => {
-    //   const doc_fields_done = fieldsToCheck.every(field =>
-    //     doc[field] == 'Done'
-    //   )
-    //   if (doc_fields_done) { doc.status = 'Done'; }
-    //   fieldsToCheck.map((field, index) => {
-    //     if (!((doc[field] != 'Undone' && doc.type != 'folder') || (doc.type == 'folder'))) {
-    //       console.log(doc, 'file not done')
-    //     } else { console.log('file done') }
-    //   }
-    //   )
-    // })
+    allDocs.map((doc, doc_index) => {
+      const doc_fields_done = fieldsToCheck.every(field =>
+        doc[field] == 'Done'
+      )
+      if (doc_fields_done) { doc.status = 'Done'; }
+      fieldsToCheck.map((field, index) => {
+        if (!((doc[field] != 'Undone' && doc.type != 'folder') || (doc.type == 'folder'))) {
+          console.log(doc, 'file not done')}
+      }
+      )
+    })
     setModified(!allFieldsDone);
   }, [allDocs]);
+
   let lock_observequery = true;
+
   // subscribe to the doc data
   useEffect(() => {
     const sub = client.models.Doc.observeQuery().subscribe({
@@ -84,11 +88,15 @@ function App({ signOut, user }: WithAuthenticatorProps) {
     });
 
     const sub_create = client.models.Doc.onCreate().subscribe({
-      next: (data) => { setAllDocs(prevDocs => [...prevDocs!, data]); console.log('onCreate', data);},
+      next: async (data) => { 
+        if (data.name==undefined)return;
+        setAllDocs(prevDocs => [...prevDocs!, data]); 
+        console.log('onCreate', data);
+      },
       error: (err) => console.error("Error oncreate doc:", err),
     });
 
-    const sub_delete = client.models.Doc.onDelete().subscribe({
+    const sub_delete = client.models.Doc.onDelete({selectionSet:['id']}).subscribe({
       next: (data) => { setAllDocs(prevDocs => prevDocs!.filter(doc=>doc.id!=data.id)); console.log('onDelete', data)},
       error: (err) => console.error("Error ondelete doc:", err),
     });
@@ -151,7 +159,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
       try {
         const folders = allDocs!.filter((doc) => doc.type == 'folder' && doc.path == path).sort();
         const docs_rest = allDocs!.filter((doc) => doc.type != 'folder' && doc.path == path).sort();
-        setCurrentDocs([...folders, ...docs_rest]);
+        setCurrentPathDocs([...folders, ...docs_rest]);
         console.log("current docs updated: ", [...folders, ...docs_rest])
       } catch (error) {
         console.log("Error fetching docs:", error);
@@ -165,7 +173,10 @@ function App({ signOut, user }: WithAuthenticatorProps) {
   const username: string = user?.signInDetails?.loginId?.split('@')[0] ?? 'Unknown';
   return (
     <AppContext.Provider
-      value={{ username, path, setPath, allDocs, setAllDocs, currentDocs, setCurrentDocs, modified, setModified }}
+      value={{ 
+        username, path, setPath, allDocs, setAllDocs, 
+        currentPathDocs, setCurrentPathDocs,
+        currentShownDocs, setCurrentShownDocs, modified, setModified }}
     >
 
       <main className="app-container">

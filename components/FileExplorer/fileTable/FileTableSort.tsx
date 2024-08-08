@@ -359,7 +359,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 interface StickyHeadSortTableProps {
 }
 const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
-  const { username, path, setPath, currentDocs } = useAppContext();
+  const { username, path, setPath, currentShownDocs } = useAppContext();
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('status');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -385,11 +385,11 @@ const EnhancedTable: React.FC<StickyHeadSortTableProps> = ({ }) => {
 
   React.useEffect(
     () => {
-      setRowsPerPage(currentDocs.length)
-      const tempRows = currentDocs.map(doc => { return createData(doc); })
+      setRowsPerPage(currentShownDocs.length)
+      const tempRows = currentShownDocs.map(doc => { return createData(doc); })
       setRows(stableSort(tempRows, getComparator(order, orderBy)));
     },
-    [order, orderBy, currentDocs],
+    [order, orderBy, currentShownDocs],
   );
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
