@@ -1,5 +1,4 @@
 import { Authenticator, Button, Heading, useAuthenticator, useTheme, View, Image, Text } from "@aws-amplify/ui-react";
-import { Email } from "@mui/icons-material";
 
 export const components = {
   // Header() {
@@ -101,7 +100,7 @@ export const components = {
       );
     },
     Footer() {
-      return <Text>Footer Information</Text>;
+      return <Text></Text>;
     },
   },
   SetupTotp: {
@@ -117,7 +116,7 @@ export const components = {
       );
     },
     Footer() {
-      return <Text>Footer Information</Text>;
+      return <Text></Text>;
     },
   },
   ConfirmSignIn: {
@@ -133,7 +132,7 @@ export const components = {
       );
     },
     Footer() {
-      return <Text>Footer Information</Text>;
+      return <Text></Text>;
     },
   },
   ForgotPassword: {
@@ -149,7 +148,7 @@ export const components = {
       );
     },
     Footer() {
-      return <Text>Footer Information</Text>;
+      return <Text></Text>;
     },
   },
   ConfirmResetPassword: {
@@ -165,7 +164,7 @@ export const components = {
       );
     },
     Footer() {
-      return <Text>Footer Information</Text>;
+      return <Text></Text>;
     },
   },
 };
@@ -254,7 +253,7 @@ export const formFields = {
 export default function App() {
   return (
     <Authenticator formFields={formFields} components={components}>
-      {({ signOut }) => <button onClick={signOut}>Sign out</button>}
+      {({ signOut }) => <button onClick={signOut}>登出</button>}
     </Authenticator>
   );
 }

@@ -154,7 +154,7 @@ export async function deleteDocFile(id: string) {
   }
 }
 
-export async function createFolder(path: string, hasID: (id: string) => boolean) {
+export async function createFolder(user:string, path: string, hasID: (id: string) => boolean) {
   let folderName = 'New Folder';
   while (true) {
     folderName = getValidFolderName()!;
@@ -186,7 +186,7 @@ export async function createFolder(path: string, hasID: (id: string) => boolean)
         statusSummary: '-'
       });
       console.log("response (create folder): ", response_create);
-      create_log({name: '自動', action:'成功建立資料夾', object:`已建立資料夾路徑: "./${path}${folderName}/"`});
+      create_log({name: user, action:'成功建立資料夾', object:`已建立資料夾路徑: "./${path}${folderName}/"`});
 
     } else {
       console.log("User canceled the input.");

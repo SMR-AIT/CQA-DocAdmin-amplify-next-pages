@@ -226,7 +226,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
             <Button
               className="create-folder"
               onClick={() => {
-                fileOps.createFolder(path, hasID);
+                fileOps.createFolder(username, path, hasID);
               }}
               color="success"
             >
@@ -247,7 +247,7 @@ function App({ signOut, user }: WithAuthenticatorProps) {
               onClick={() => {
                 fileOps.setUndone2Pending(allDocs!);
                 triggerBuildVdb();
-                create_log({ name: username!, action: '啟動更新部署', object: allDocs!.map((doc) => doc.id).join(', ') });
+                create_log({ name: username!, action: '啟動更新部署', object: allDocs.filter(doc=>doc.status!='Done').join(', ') });
               }}
               color="warning"
               disabled={!modified}
