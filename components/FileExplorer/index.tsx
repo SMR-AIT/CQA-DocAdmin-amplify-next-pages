@@ -247,7 +247,11 @@ function App({ signOut, user }: WithAuthenticatorProps) {
               onClick={() => {
                 fileOps.setUndone2Pending(allDocs!);
                 triggerBuildVdb();
-                create_log({ name: username!, action: '啟動更新部署', object: allDocs.filter(doc=>doc.status!='Done').join(', ') });
+                create_log({ name: username!, action: '啟動更新部署', 
+                  object: allDocs
+                  .filter(doc=>doc.status!='Done'&&doc.type!='folder')
+                  .map(doc=>doc.name)
+                  .join(', ') });
               }}
               color="warning"
               disabled={!modified}
