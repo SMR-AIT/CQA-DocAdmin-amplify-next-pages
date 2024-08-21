@@ -1,4 +1,36 @@
 import { Authenticator, Button, Heading, useAuthenticator, useTheme, View, Image, Text } from "@aws-amplify/ui-react";
+import { I18n } from 'aws-amplify/utils';
+import { translations } from '@aws-amplify/ui-react';
+I18n.putVocabularies(translations);
+I18n.setLanguage('zh');
+
+I18n.putVocabularies({
+  zh: {
+    'Sign In': '登入',
+    'Sign in': '登入',
+    'Sign Up': "註冊",
+    'Create Account': "創建帳戶",
+    'Send code':"傳送驗證碼",
+    "Back to Sign In":"回到登入畫面",
+    "Email":"電子郵件",
+    "Confirm": "確認",
+    "Resend Code": "重發驗證碼",
+    "Code": "驗證碼",
+    "Submit":"提交",
+    "New Password":"新密碼",
+    "Confirm Password":"確認密碼",
+    "Confirmation Code":"驗證碼",
+    "Enter your code": "請輸入驗證碼",
+    "Your code is on the way. To log in, enter the code we emailed to {Email}. It may take a minute to arrive.":"你的驗證碼已寄到此電子郵件 {Email}，可能會需要等候一分鐘。",
+    "User already exists":"此電子郵件已經存在",
+    "Your passwords must match":"請確認密碼相同",
+    "Password must have at least 8 characters": "需要至少8個字元",
+    "Password must have lower case letters":"需要至少一個小寫字母",
+    "Password must have upper case letters":"需要至少一個大寫字母",
+    "Password must have special characters":"需要至少一個特殊符號",
+    "Password must have numbers":"需要至少一個數字"
+  }
+});
 
 export const components = {
   // Header() {
@@ -92,7 +124,7 @@ export const components = {
       const { tokens } = useTheme();
       return (
         <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
+          // padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
           level={3}
         >
           請輸入資訊:
@@ -108,7 +140,7 @@ export const components = {
       const { tokens } = useTheme();
       return (
         <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
+          // padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
           level={3}
         >
           請輸入資訊:
@@ -124,7 +156,7 @@ export const components = {
       const { tokens } = useTheme();
       return (
         <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
+          // padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
           level={3}
         >
           請輸入資訊:
@@ -140,7 +172,7 @@ export const components = {
       const { tokens } = useTheme();
       return (
         <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
+          // padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
           level={3}
         >
           請輸入資訊:
@@ -156,7 +188,7 @@ export const components = {
       const { tokens } = useTheme();
       return (
         <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
+          // padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
           level={3}
         >
           請輸入資訊:
@@ -212,22 +244,22 @@ export const formFields = {
   },
   forceNewPassword: {
     password: {
-      placeholder: 'Enter your Password:',
+      placeholder: '請輸入密碼',
     },
   },
   forgotPassword: {
     username: {
-      placeholder: '請輸入你的Email:',
+      placeholder: '請輸入Email',
     },
   },
   confirmResetPassword: {
     confirmation_code: {
-      placeholder: 'Enter your Confirmation Code:',
-      label: 'New Label',
+      placeholder: '請輸入驗證碼',
+      label: '驗證碼',
       isRequired: false,
     },
     confirm_password: {
-      placeholder: 'Enter your Password Please:',
+      placeholder: '請輸入密碼',
     },
   },
   setupTotp: {
@@ -237,14 +269,14 @@ export const formFields = {
     },
     confirmation_code: {
       label: 'New Label',
-      placeholder: 'Enter your Confirmation Code:',
+      placeholder: '請輸入驗證碼',
       isRequired: false,
     },
   },
   confirmSignIn: {
     confirmation_code: {
       label: 'New Label',
-      placeholder: 'Enter your Confirmation Code:',
+      placeholder: '請輸入驗證碼',
       isRequired: false,
     },
   },
