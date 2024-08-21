@@ -28,7 +28,8 @@ I18n.putVocabularies({
     "Password must have lower case letters":"需要至少一個小寫字母",
     "Password must have upper case letters":"需要至少一個大寫字母",
     "Password must have special characters":"需要至少一個特殊符號",
-    "Password must have numbers":"需要至少一個數字"
+    "Password must have numbers":"需要至少一個數字",
+    "PreSignUp failed with error Invalid email domain.":"請使用公司的電子郵件註冊"
   }
 });
 
